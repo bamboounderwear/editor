@@ -14,5 +14,12 @@ export default defineConfig({
         slide: resolve(__dirname, 'public/templates/slide.html')
       }
     }
+  },
+  publicDir: 'public',
+  assetsInclude: ['**/*.js'],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src')
+    }
   }
 });
