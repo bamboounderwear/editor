@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 
 export default defineConfig({
   server: {
@@ -12,6 +13,11 @@ export default defineConfig({
         instagram: 'public/templates/instagram.html',
         slide: 'public/templates/slide.html'
       }
+    }
+  },
+  resolve: {
+    alias: {
+      '/src': resolve(__dirname, 'src')
     }
   }
 });
