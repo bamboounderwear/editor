@@ -15,8 +15,6 @@ export default defineConfig({
       }
     }
   },
-  publicDir: 'public',
-  assetsInclude: ['**/*.js'],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')

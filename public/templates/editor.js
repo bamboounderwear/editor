@@ -1,4 +1,4 @@
-class TemplateEditor {
+export class TemplateEditor {
   constructor() {
     this.currentElement = null;
     this.toolbar = this.createToolbar();
@@ -281,8 +281,4 @@ class TemplateEditor {
   hideToolbar() {
     this.toolbar.style.display = 'none';
   }
-}
-
-export function initEditor() {
-  return new TemplateEditor();
 }
