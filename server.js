@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 const app = express();
 
 // Serve static files
-app.use(serveStatic(join(__dirname)));
+app.use(serveStatic(__dirname));
 
 // Set correct MIME type for JavaScript modules
 app.use((req, res, next) => {
@@ -19,9 +19,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve index.html for root path
-app.get('/', (req, res) => {
-  res.sendFile(join(__dirname, 'index.html'));
+// Handle all routes
+app.get('*', (req, res) => {
+  // If requesting a template, serve it directly
+  if (req.path.startsWith('/templates/')) {
+    res.sendFile(join(__dirname, req.path));
+  } else {
+    // Otherwise serve index.html
+    res.sendFile(join(__dirname, 'index.html'));
+  }
 });
 
 const port = process.env.PORT || 3000;

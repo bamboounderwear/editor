@@ -1,9 +1,14 @@
 [build]
-  command = "npm install && npm run build"
+  command = "mkdir -p dist && cp -r index.html src templates dist/"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/templates/*"
+  to = "/templates/:splat"
+  status = 200
 
 [[redirects]]
   from = "/*"
