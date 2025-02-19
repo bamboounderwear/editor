@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Deck Template</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="/src/style.css">
+  <style>
+    .slide-container {
+      width: 1920px;
+      height: 1080px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      position: relative;
+      transform-origin: top left;
+      padding: 60px;
+      box-sizing: border-box;
+    }
+    .logo {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      width: 120px;
+    }
+    @media screen {
+      .slide-container {
+        transform: scale(0.5);
+        margin-bottom: -540px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="slide-container">
+    <h1 data-editable>Presentation Title</h1>
+    <div data-editable>
+      <p>Main content goes here. Click to edit.</p>
+      <ul>
+        <li>Point 1</li>
+        <li>Point 2</li>
+        <li>Point 3</li>
+      </ul>
+    </div>
+    <img class="logo" src="https://via.placeholder.com/120x40" alt="Logo" data-editable>
+  </div>
+  <script type="module">
+    import { TemplateEditor } from '/src/editor.js';
+    window.jsPDF = window.jspdf.jsPDF;
+    new TemplateEditor();
+  </script>
+</body>
+</html>

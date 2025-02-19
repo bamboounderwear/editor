@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Post Template</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="/src/style.css">
+  <style>
+    .post-container {
+      width: 2048px;
+      height: 2048px;
+      position: relative;
+      background: url('https://via.placeholder.com/2048') center/cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: top left;
+    }
+    .text-overlay {
+      text-align: center;
+      color: white;
+      padding: 20px;
+      background: rgba(0,0,0,0.5);
+    }
+    @media screen {
+      .post-container {
+        transform: scale(0.25);
+        margin-bottom: -1536px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="post-container">
+    <div class="text-overlay">
+      <h1 data-editable>Your Instagram Post Title</h1>
+    </div>
+  </div>
+  <script type="module">
+    import { TemplateEditor } from '/src/editor.js';
+    window.jsPDF = window.jspdf.jsPDF;
+    new TemplateEditor();
+  </script>
+</body>
+</html>
