@@ -8,16 +8,11 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: 'index.html',
-        email: 'public/templates/email.html',
-        instagram: 'public/templates/instagram.html',
-        slide: 'public/templates/slide.html'
+        main: resolve(__dirname, 'index.html'),
+        email: resolve(__dirname, 'public/templates/email.html'),
+        instagram: resolve(__dirname, 'public/templates/instagram.html'),
+        slide: resolve(__dirname, 'public/templates/slide.html')
       }
-    }
-  },
-  resolve: {
-    alias: {
-      '/src': resolve(__dirname, 'src')
     }
   }
 });
