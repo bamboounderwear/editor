@@ -35,6 +35,7 @@ function createExportControls() {
 
   // Create buttons
   const buttons = [
+    { label: '🏠 Home', action: 'home' },
     { label: '↩️ Undo', action: 'undo' },
     { label: '📄 HTML', action: 'html' },
     { label: '📑 PDF', action: 'pdf' },
@@ -67,6 +68,10 @@ function createExportControls() {
 
     button.addEventListener('click', async () => {
       switch (btn.action) {
+        case 'home':
+          window.location.href = '/';
+          break;
+
         case 'undo':
           if (undoHistory.length > 0) {
             const lastState = undoHistory.pop();
@@ -94,6 +99,44 @@ function createExportControls() {
 
   document.body.appendChild(controls);
   return { controls, undoHistory };
+}
+
+// Create a container for the content
+function createContentContainer() {
+  // Check if container already exists
+  let container = document.querySelector('.editor-content-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'editor-content-container';
+    
+    // Move all body content into the container
+    const bodyContent = Array.from(document.body.children);
+    bodyContent.forEach(child => {
+      if (!child.classList.contains('floating-toolbar') && 
+          !child.classList.contains('export-controls') &&
+          !child.classList.contains('editor-content-container')) {
+        container.appendChild(child);
+      }
+    });
+    
+    document.body.appendChild(container);
+  }
+  
+  // Set container styles
+  container.style.cssText = `
+    min-height: 100vh;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    background: ${getComputedStyle(document.body).background};
+  `;
+  
+  // Set body styles
+  document.body.style.margin = '0';
+  document.body.style.padding = '0';
+  document.body.style.minHeight = '100vh';
+  
+  return container;
 }
 
 // Export functions
@@ -138,10 +181,13 @@ async function exportAsPdf() {
   });
 
   try {
-    const canvas = await html2canvas(document.body, {
+    const container = document.querySelector('.editor-content-container');
+    const canvas = await html2canvas(container || document.body, {
       scale: 2,
       useCORS: true,
-      logging: false
+      logging: false,
+      windowWidth: container?.offsetWidth || document.body.offsetWidth,
+      windowHeight: container?.offsetHeight || document.body.offsetHeight
     });
 
     const pdf = new jspdf.jsPDF({
@@ -186,10 +232,13 @@ async function exportAsJpg() {
   });
 
   try {
-    const canvas = await html2canvas(document.body, {
+    const container = document.querySelector('.editor-content-container');
+    const canvas = await html2canvas(container || document.body, {
       scale: 2,
       useCORS: true,
-      logging: false
+      logging: false,
+      windowWidth: container?.offsetWidth || document.body.offsetWidth,
+      windowHeight: container?.offsetHeight || document.body.offsetHeight
     });
 
     const url = canvas.toDataURL('image/jpeg', 0.9);
@@ -435,6 +484,7 @@ function positionToolbar(element, toolbar) {
 function initializeEditor() {
   const toolbar = createFloatingToolbar();
   const { controls, undoHistory } = createExportControls();
+  const container = createContentContainer();
   let activeElement = null;
   let selectionTimeout = null;
 
@@ -491,7 +541,7 @@ function initializeEditor() {
   });
 
   // Make content editable and track changes
-  document.querySelectorAll('*').forEach(element => {
+  container.querySelectorAll('*').forEach(element => {
     if (element.tagName !== 'SCRIPT' && 
         element.tagName !== 'STYLE' && 
         !element.closest('.floating-toolbar') &&
