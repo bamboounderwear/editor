@@ -17,6 +17,58 @@ function createFloatingToolbar() {
   return toolbar;
 }
 
+// Create color picker interface
+function createColorPicker(element, property, currentColor) {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+  `;
+
+  const label = document.createElement('span');
+  label.textContent = property === 'color' ? 'Text:' : 'Background:';
+  label.style.fontSize = '12px';
+
+  const input = document.createElement('input');
+  input.type = 'color';
+  input.value = convertToHex(currentColor);
+  input.style.cssText = `
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  `;
+
+  input.addEventListener('input', (e) => {
+    element.style[property] = e.target.value;
+  });
+
+  container.appendChild(label);
+  container.appendChild(input);
+  return container;
+}
+
+// Convert any color format to hex
+function convertToHex(color) {
+  const div = document.createElement('div');
+  div.style.color = color;
+  document.body.appendChild(div);
+  const computed = getComputedStyle(div).color;
+  document.body.removeChild(div);
+  
+  // Convert rgb to hex
+  if (computed.startsWith('rgb')) {
+    const [r, g, b] = computed.match(/\d+/g).map(Number);
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+  }
+  
+  return color;
+}
+
 // Create export controls
 function createExportControls() {
   const controls = document.createElement('div');
@@ -137,6 +189,125 @@ function createContentContainer() {
   document.body.style.minHeight = '100vh';
   
   return container;
+}
+
+// Check if element has color properties
+function hasColorProperties(element) {
+  const style = getComputedStyle(element);
+  return style.color !== 'rgba(0, 0, 0, 0)' || 
+         style.backgroundColor !== 'rgba(0, 0, 0, 0)';
+}
+
+// Create context-specific editing buttons
+function createEditingButtons(element, toolbar) {
+  toolbar.innerHTML = ''; // Clear existing buttons
+  
+  const buttons = [];
+  const imageUploadInput = createImageUploadInput();
+  
+  // Add element-specific buttons
+  if (element.tagName === 'IMG') {
+    buttons.push(
+      { command: 'uploadImage', icon: '📤' },
+      { command: 'editImage', icon: '🖼️' },
+      { command: 'clearImage', icon: '🗑️' }
+    );
+  } else if (element.tagName === 'BUTTON') {
+    buttons.push({ command: 'editButton', icon: '🔲' });
+  } else if (element.nodeType === 3 || element.isContentEditable) {
+    buttons.push(
+      { command: 'bold', icon: '𝐁' },
+      { command: 'italic', icon: '𝑰' },
+      { command: 'createLink', icon: '🔗' }
+    );
+  }
+
+  // Add color pickers if element has color properties
+  if (hasColorProperties(element)) {
+    const style = getComputedStyle(element);
+    
+    if (style.color !== 'rgba(0, 0, 0, 0)') {
+      toolbar.appendChild(createColorPicker(element, 'color', style.color));
+    }
+    
+    if (style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+      toolbar.appendChild(createColorPicker(element, 'backgroundColor', style.backgroundColor));
+    }
+  }
+
+  buttons.forEach(btn => {
+    const button = document.createElement('button');
+    button.innerHTML = btn.icon;
+    button.style.cssText = `
+      padding: 4px 8px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      min-width: 30px;
+    `;
+    
+    button.addEventListener('click', (e) => {
+      e.stopPropagation();
+      
+      switch (btn.command) {
+        case 'uploadImage':
+          imageUploadInput.onchange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+              handleImageUpload(file, element);
+            }
+            imageUploadInput.value = ''; // Reset input
+          };
+          imageUploadInput.click();
+          break;
+
+        case 'editImage':
+          const newSrc = prompt('Enter new image URL:', element.src);
+          if (newSrc) {
+            const img = new Image();
+            img.onload = () => {
+              element.src = newSrc;
+              element.alt = prompt('Enter new alt text:', element.alt) || '';
+              // Clear stored image if exists
+              if (element.dataset.imageId) {
+                localStorage.removeItem(`editor_image_${element.dataset.imageId}`);
+                delete element.dataset.imageId;
+              }
+            };
+            img.onerror = () => {
+              alert('Invalid image URL. Please try again.');
+            };
+            img.src = newSrc;
+          }
+          break;
+
+        case 'clearImage':
+          if (element.dataset.imageId) {
+            localStorage.removeItem(`editor_image_${element.dataset.imageId}`);
+            delete element.dataset.imageId;
+            alert('Image storage cleared. The image will remain visible until page reload.');
+          }
+          break;
+
+        case 'editButton':
+          const newText = prompt('Enter new button text:', element.innerText);
+          if (newText) element.innerText = newText;
+          break;
+
+        case 'createLink':
+          const url = prompt('Enter URL:');
+          if (url) document.execCommand(btn.command, false, url);
+          break;
+
+        default:
+          document.execCommand(btn.command);
+      }
+    });
+
+    toolbar.appendChild(button);
+  });
 }
 
 // Export functions
@@ -368,105 +539,6 @@ async function handleImageUpload(file, element) {
   };
   
   reader.readAsDataURL(file);
-}
-
-// Create context-specific editing buttons
-function createEditingButtons(element, toolbar) {
-  toolbar.innerHTML = ''; // Clear existing buttons
-  
-  const buttons = [];
-  const imageUploadInput = createImageUploadInput();
-  
-  // Add element-specific buttons
-  if (element.tagName === 'IMG') {
-    buttons.push(
-      { command: 'uploadImage', icon: '📤' },
-      { command: 'editImage', icon: '🖼️' },
-      { command: 'clearImage', icon: '🗑️' }
-    );
-  } else if (element.tagName === 'BUTTON') {
-    buttons.push({ command: 'editButton', icon: '🔲' });
-  } else if (element.nodeType === 3 || element.isContentEditable) {
-    buttons.push(
-      { command: 'bold', icon: '𝐁' },
-      { command: 'italic', icon: '𝑰' },
-      { command: 'createLink', icon: '🔗' }
-    );
-  }
-
-  buttons.forEach(btn => {
-    const button = document.createElement('button');
-    button.innerHTML = btn.icon;
-    button.style.cssText = `
-      padding: 4px 8px;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 14px;
-      min-width: 30px;
-    `;
-    
-    button.addEventListener('click', (e) => {
-      e.stopPropagation();
-      
-      switch (btn.command) {
-        case 'uploadImage':
-          imageUploadInput.onchange = (event) => {
-            const file = event.target.files[0];
-            if (file) {
-              handleImageUpload(file, element);
-            }
-            imageUploadInput.value = ''; // Reset input
-          };
-          imageUploadInput.click();
-          break;
-
-        case 'editImage':
-          const newSrc = prompt('Enter new image URL:', element.src);
-          if (newSrc) {
-            const img = new Image();
-            img.onload = () => {
-              element.src = newSrc;
-              element.alt = prompt('Enter new alt text:', element.alt) || '';
-              // Clear stored image if exists
-              if (element.dataset.imageId) {
-                localStorage.removeItem(`editor_image_${element.dataset.imageId}`);
-                delete element.dataset.imageId;
-              }
-            };
-            img.onerror = () => {
-              alert('Invalid image URL. Please try again.');
-            };
-            img.src = newSrc;
-          }
-          break;
-
-        case 'clearImage':
-          if (element.dataset.imageId) {
-            localStorage.removeItem(`editor_image_${element.dataset.imageId}`);
-            delete element.dataset.imageId;
-            alert('Image storage cleared. The image will remain visible until page reload.');
-          }
-          break;
-
-        case 'editButton':
-          const newText = prompt('Enter new button text:', element.innerText);
-          if (newText) element.innerText = newText;
-          break;
-
-        case 'createLink':
-          const url = prompt('Enter URL:');
-          if (url) document.execCommand(btn.command, false, url);
-          break;
-
-        default:
-          document.execCommand(btn.command);
-      }
-    });
-
-    toolbar.appendChild(button);
-  });
 }
 
 // Position the toolbar near the selected element
