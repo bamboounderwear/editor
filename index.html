@@ -39,14 +39,18 @@
       padding: 10px;
       position: relative;
     }
-    /* Cells in a grid */
-    r-cell.cell {
-      border: 1px solid #ccc;
-      padding: 10px;
-      cursor: pointer;
-      background: #f9f9f9;
-      /* No forced text-align so user-chosen alignment can apply */
+    
+    /* Debug class for grid visualization */
+    r-grid.debug {
+      background-color: rgba(0, 0, 0, 0.03);
     }
+    
+    /* Debug class for grid visualization - style all cells within debug grid */
+    r-grid.debug > * {
+      padding: 5px !important;
+      cursor: pointer !important;
+    }
+    
     .selected {
       outline: 2px solid #1871e9; /* highlight a selected grid/cell */
     }
@@ -63,7 +67,7 @@
     }
 
     /* Modal popup for styling */
-    #styleModal {
+    #styleModal, #cellStyleModal {
       display: none;
       position: fixed;
       top: 0; left: 0;
@@ -73,7 +77,7 @@
       align-items: center;
       z-index: 1000;
     }
-    #styleModalContent {
+    #styleModalContent, #cellStyleModalContent {
       background: #fff;
       padding: 20px;
       border-radius: 4px;
@@ -81,20 +85,23 @@
       max-width: 500px;
       position: relative;
     }
-    #styleModalClose {
+    #styleModalClose, #cellStyleModalClose {
       position: absolute;
       top: 10px; right: 10px;
       cursor: pointer;
       font-size: 20px;
       color: #888;
     }
-    #styleModalContent label {
+    #styleModalContent label, #cellStyleModalContent label {
       display: block;
       margin-top: 10px;
     }
     #styleModalContent input,
     #styleModalContent select,
-    #styleModalContent button {
+    #styleModalContent button,
+    #cellStyleModalContent input,
+    #cellStyleModalContent select,
+    #cellStyleModalContent button {
       margin-top: 5px;
       display: block;
       width: 100%;
@@ -120,11 +127,108 @@
       font-family: monospace;
       width: 100%;
     }
+    
+    /* Action buttons container */
+    .action-buttons {
+      margin-top: 10px;
+      margin-bottom: 15px;
+    }
+    
+    /* Disabled button styling */
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Element buttons layout */
+    .element-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+    
+    /* Undo button styling */
+    #undo-button {
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+    
+    #undo-button:hover:not(:disabled) {
+      background-color: #e0e0e0;
+    }
+    
+    #undo-button:before {
+      content: "↩";
+      margin-right: 5px;
+      font-size: 16px;
+    }
+    
+    /* Color picker styles */
+    .color-picker-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    
+    .color-swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+    }
+    
+    .color-swatch:hover {
+      transform: scale(1.1);
+    }
+    
+    /* Custom color utilities */
+    .bg-white { background-color: #ffffff; }
+    .bg-light { background-color: #f8f9fa; }
+    .bg-gray { background-color: #6c757d; }
+    .bg-dark { background-color: #343a40; }
+    .bg-primary { background-color: #007bff; }
+    .bg-secondary { background-color: #6c757d; }
+    .bg-success { background-color: #28a745; }
+    .bg-danger { background-color: #dc3545; }
+    .bg-warning { background-color: #ffc107; }
+    .bg-info { background-color: #17a2b8; }
+    .bg-purple { background-color: #6f42c1; }
+    .bg-pink { background-color: #e83e8c; }
+    .bg-orange { background-color: #fd7e14; }
+    .bg-teal { background-color: #20c997; }
+    
+    .text-white { color: #ffffff; }
+    .text-light { color: #f8f9fa; }
+    .text-gray { color: #6c757d; }
+    .text-dark { color: #343a40; }
+    .text-primary { color: #007bff; }
+    .text-secondary { color: #6c757d; }
+    .text-success { color: #28a745; }
+    .text-danger { color: #dc3545; }
+    .text-warning { color: #ffc107; }
+    .text-info { color: #17a2b8; }
+    .text-purple { color: #6f42c1; }
+    .text-pink { color: #e83e8c; }
+    .text-orange { color: #fd7e14; }
+    .text-teal { color: #20c997; }
   </style>
 </head>
 <body>
   <div class="sidebar">
     <h2>Visual Editor</h2>
+    
+    <!-- Undo button -->
+    <button id="undo-button" disabled>Undo</button>
+    
     <!-- Create Grid -->
     <section>
       <h3>Create Grid</h3>
@@ -137,6 +241,7 @@
         <input type="number" id="grid-columns-mobile" value="1" min="1" max="30">
       </label>
       <button id="add-grid">Add Grid</button>
+      <button id="toggle-base-grid">Toggle Baseline Grid</button>
     </section>
     <hr>
     <!-- Grid Actions -->
@@ -149,21 +254,33 @@
           <input type="text" id="cell-span" placeholder="1-2">
         </label>
         <button id="update-cell">Update Cell</button>
+        <button id="style-cell">Style Cell</button>
+      </div>
+      <div class="action-buttons">
+        <button id="delete-element" disabled>Delete Selected Element</button>
+        <button id="delete-cell" disabled>Delete Selected Cell</button>
+        <button id="delete-grid" disabled>Delete Selected Grid</button>
       </div>
     </section>
     <hr>
     <!-- Elements for selected cell -->
     <section>
       <h3>Add Element</h3>
-      <button id="add-h1">H1</button>
-      <button id="add-h2">H2</button>
-      <button id="add-h3">H3</button>
-      <button id="add-p">Paragraph</button>
-      <button id="add-img">Image</button>
+      <div class="element-buttons">
+        <button id="add-h1">H1</button>
+        <button id="add-h2">H2</button>
+        <button id="add-h3">H3</button>
+        <button id="add-p">Paragraph</button>
+        <button id="add-img">Image</button>
+        <button id="add-list">List</button>
+        <button id="add-task-list">Task List</button>
+        <button id="add-divider">Divider</button>
+        <button id="add-code">Monospace</button>
+      </div>
     </section>
     <hr>
     <!-- Style the selected element -->
-    <button id="open-style-modal">Style Selected Element</button>
+    <button id="open-style-modal" disabled>Style Selected Element</button>
     <hr>
     <!-- Export HTML -->
     <section>
@@ -178,6 +295,9 @@
       <br>- In that cell, add elements (H1, p, image, etc.).
       <br>- Click an element to select it (shows dashed border).
       <br>- "Style Selected Element" to open the modal for text, alignment, spacing, etc.
+      <br>- "Style Cell" to set height and other cell-specific properties.
+      <br>- Use delete buttons to remove elements, cells, or grids.
+      <br>- Use the Undo button to revert your last action.
       <br>- Export to download a cleaned HTML file.
     </p>
   </div>
@@ -205,6 +325,17 @@
         <option value="xsmall">X-Small</option>
       </select>
       
+      <div id="size-class-container" style="display:none;">
+        <label for="size-class-select">Heading Size (H1 only):</label>
+        <select id="size-class-select">
+          <option value="">Default size</option>
+          <option value="large">Large</option>
+          <option value="xlarge">X-Large</option>
+          <option value="xxlarge">XX-Large</option>
+          <option value="xxxlarge">XXX-Large</option>
+        </select>
+      </div>
+      
       <label for="align-select">Text Align:</label>
       <select id="align-select">
         <option value="">None</option>
@@ -212,6 +343,40 @@
         <option value="center">center</option>
         <option value="right">right</option>
       </select>
+
+      <label for="text-color-select">Text Color:</label>
+      <select id="text-color-select">
+        <option value="">Default</option>
+        <option value="text-primary">Primary (Blue)</option>
+        <option value="text-secondary">Secondary (Gray)</option>
+        <option value="text-success">Success (Green)</option>
+        <option value="text-danger">Danger (Red)</option>
+        <option value="text-warning">Warning (Yellow)</option>
+        <option value="text-info">Info (Light Blue)</option>
+        <option value="text-dark">Dark</option>
+        <option value="text-light">Light</option>
+        <option value="text-white">White</option>
+        <option value="text-purple">Purple</option>
+        <option value="text-pink">Pink</option>
+        <option value="text-orange">Orange</option>
+        <option value="text-teal">Teal</option>
+      </select>
+      
+      <div class="color-picker-container" id="text-color-swatches">
+        <div class="color-swatch" data-color="text-primary" style="background-color: #007bff;"></div>
+        <div class="color-swatch" data-color="text-secondary" style="background-color: #6c757d;"></div>
+        <div class="color-swatch" data-color="text-success" style="background-color: #28a745;"></div>
+        <div class="color-swatch" data-color="text-danger" style="background-color: #dc3545;"></div>
+        <div class="color-swatch" data-color="text-warning" style="background-color: #ffc107;"></div>
+        <div class="color-swatch" data-color="text-info" style="background-color: #17a2b8;"></div>
+        <div class="color-swatch" data-color="text-dark" style="background-color: #343a40;"></div>
+        <div class="color-swatch" data-color="text-light" style="background-color: #f8f9fa;"></div>
+        <div class="color-swatch" data-color="text-white" style="background-color: #ffffff;"></div>
+        <div class="color-swatch" data-color="text-purple" style="background-color: #6f42c1;"></div>
+        <div class="color-swatch" data-color="text-pink" style="background-color: #e83e8c;"></div>
+        <div class="color-swatch" data-color="text-orange" style="background-color: #fd7e14;"></div>
+        <div class="color-swatch" data-color="text-teal" style="background-color: #20c997;"></div>
+      </div>
 
       <label for="margin-select">Margin Class:</label>
       <select id="margin-select">
@@ -239,334 +404,85 @@
     </div>
   </div>
 
-  <script>
-    /*******************************************************
-     * grid.js-like code
-     ********************************************************/
-    let selectedGrid = null;
-    let selectedCell = null; 
-    const addGridBtn = document.getElementById("add-grid");
-    const gridColumnsInput = document.getElementById("grid-columns");
-    const gridMobileInput = document.getElementById("grid-columns-mobile");
-    const preview = document.getElementById("preview");
-    const addCellBtn = document.getElementById("add-cell");
-    const cellControls = document.getElementById("cell-controls");
-    const cellSpanInput = document.getElementById("cell-span");
-    const updateCellBtn = document.getElementById("update-cell");
-
-    addGridBtn.addEventListener("click", () => {
-      const cols = gridColumnsInput.value;
-      const mobileCols = gridMobileInput.value;
-      const grid = document.createElement("r-grid");
-      grid.setAttribute("columns", cols);
-      grid.setAttribute("columns-s", mobileCols);
-      grid.classList.add("grid-container");
-      grid.innerHTML = '<p style="text-align:center; color:#777;">Click grid to select<br>then add cells</p>';
+  <!-- Modal for styling a cell -->
+  <div id="cellStyleModal">
+    <div id="cellStyleModalContent">
+      <span id="cellStyleModalClose">&times;</span>
+      <h3>Cell Styling</h3>
       
-      // When clicking the grid (not its cells), select the grid
-      grid.addEventListener("click", (e) => {
-        if (e.target.tagName.toLowerCase() === "r-cell") return;
-        clearGridSelection();
-        clearCellSelection();
-        selectedGrid = grid;
-        grid.classList.add("selected");
-        addCellBtn.disabled = false;
-        e.stopPropagation();
-      });
-      preview.appendChild(grid);
-      clearGridSelection();
-      clearCellSelection();
-    });
+      <label for="cell-height-select">Height Class:</label>
+      <select id="cell-height-select">
+        <option value="">None</option>
+        <option value="h-1">h-1 (1 line height)</option>
+        <option value="h-2">h-2 (2 line heights)</option>
+        <option value="h-3">h-3 (3 line heights)</option>
+        <option value="h-4">h-4 (4 line heights)</option>
+        <option value="h-5">h-5 (5 line heights)</option>
+        <option value="h-6">h-6 (6 line heights)</option>
+        <option value="h-8">h-8 (8 line heights)</option>
+        <option value="h-10">h-10 (10 line heights)</option>
+        <option value="h-12">h-12 (12 line heights)</option>
+        <option value="h-16">h-16 (16 line heights)</option>
+        <option value="h-20">h-20 (20 line heights)</option>
+        <option value="h-24">h-24 (24 line heights)</option>
+        <option value="h-30">h-30 (30 line heights)</option>
+        <option value="h-40">h-40 (40 line heights)</option>
+      </select>
+      
+      <label for="cell-padding-select">Padding Class:</label>
+      <select id="cell-padding-select">
+        <option value="">None</option>
+        <option value="padding0">padding0</option>
+        <option value="padding1">padding1</option>
+        <option value="padding2">padding2</option>
+        <option value="padding3">padding3</option>
+        <option value="padding4">padding4</option>
+        <option value="padding5">padding5</option>
+      </select>
+      
+      <label for="cell-bg-color-select">Background Color:</label>
+      <select id="cell-bg-color-select">
+        <option value="">None</option>
+        <option value="bg-white">White</option>
+        <option value="bg-light">Light</option>
+        <option value="bg-primary">Primary (Blue)</option>
+        <option value="bg-secondary">Secondary (Gray)</option>
+        <option value="bg-success">Success (Green)</option>
+        <option value="bg-danger">Danger (Red)</option>
+        <option value="bg-warning">Warning (Yellow)</option>
+        <option value="bg-info">Info (Light Blue)</option>
+        <option value="bg-dark">Dark</option>
+        <option value="bg-purple">Purple</option>
+        <option value="bg-pink">Pink</option>
+        <option value="bg-orange">Orange</option>
+        <option value="bg-teal">Teal</option>
+      </select>
+      
+      <div class="color-picker-container" id="bg-color-swatches">
+        <div class="color-swatch" data-color="bg-white" style="background-color: #ffffff;"></div>
+        <div class="color-swatch" data-color="bg-light" style="background-color: #f8f9fa;"></div>
+        <div class="color-swatch" data-color="bg-primary" style="background-color: #007bff;"></div>
+        <div class="color-swatch" data-color="bg-secondary" style="background-color: #6c757d;"></div>
+        <div class="color-swatch" data-color="bg-success" style="background-color: #28a745;"></div>
+        <div class="color-swatch" data-color="bg-danger" style="background-color: #dc3545;"></div>
+        <div class="color-swatch" data-color="bg-warning" style="background-color: #ffc107;"></div>
+        <div class="color-swatch" data-color="bg-info" style="background-color: #17a2b8;"></div>
+        <div class="color-swatch" data-color="bg-dark" style="background-color: #343a40;"></div>
+        <div class="color-swatch" data-color="bg-purple" style="background-color: #6f42c1;"></div>
+        <div class="color-swatch" data-color="bg-pink" style="background-color: #e83e8c;"></div>
+        <div class="color-swatch" data-color="bg-orange" style="background-color: #fd7e14;"></div>
+        <div class="color-swatch" data-color="bg-teal" style="background-color: #20c997;"></div>
+      </div>
+      
+      <button id="apply-cell-style">Apply</button>
+    </div>
+  </div>
 
-    function clearGridSelection() {
-      document.querySelectorAll("r-grid").forEach(g => g.classList.remove("selected"));
-      selectedGrid = null;
-      addCellBtn.disabled = true;
-    }
-    function clearCellSelection() {
-      document.querySelectorAll("r-cell.cell").forEach(c => c.classList.remove("selected"));
-      selectedCell = null;
-      cellControls.style.display = "none";
-    }
-
-    addCellBtn.addEventListener("click", () => {
-      if (!selectedGrid) return;
-      const cell = document.createElement("r-cell");
-      cell.setAttribute("span", "1-2"); // default column span
-      // If the grid's mobile columns=1, set cell's span-s=1
-      if (selectedGrid.getAttribute("columns-s") === "1") {
-        cell.setAttribute("span-s", "1");
-      }
-      cell.classList.add("cell");
-
-      // Clicking on a cell
-      cell.addEventListener("click", (e) => {
-        e.stopPropagation();
-        clearCellSelection();
-        selectedCell = cell;
-        cell.classList.add("selected");
-        cellControls.style.display = "block";
-        cellSpanInput.value = cell.getAttribute("span");
-      });
-      selectedGrid.appendChild(cell);
-    });
-
-    updateCellBtn.addEventListener("click", () => {
-      if (!selectedCell) return;
-      const newRange = cellSpanInput.value;
-      selectedCell.setAttribute("span", newRange);
-      selectedCell.classList.remove("selected");
-      clearCellSelection();
-    });
-
-    document.body.addEventListener("click", (e) => {
-      if (e.target.closest(".sidebar")) return;
-      clearGridSelection();
-      clearCellSelection();
-    });
-
-    /*******************************************************
-     * elements.js-like code
-     ********************************************************/
-    let selectedElement = null; // The element we style
-
-    const addH1Btn = document.getElementById("add-h1");
-    const addH2Btn = document.getElementById("add-h2");
-    const addH3Btn = document.getElementById("add-h3");
-    const addPBtn = document.getElementById("add-p");
-    const addImgBtn = document.getElementById("add-img");
-
-    function requireCell() {
-      if (!selectedCell) {
-        alert("Please select a cell first.");
-        return false;
-      }
-      return true;
-    }
-
-    function addEditableElement(tagName, defaultText) {
-      if (!requireCell()) return;
-      const el = document.createElement(tagName);
-      if (tagName.toLowerCase() !== "img") {
-        el.textContent = defaultText;
-      } else {
-        el.src = defaultText;
-        el.style.maxWidth = "100%";
-      }
-      el.classList.add("editable-element");
-
-      // On click, select this element for styling
-      el.addEventListener("click", (e) => {
-        e.stopPropagation();
-        document.querySelectorAll(".editable-element").forEach(elem => {
-          elem.classList.remove("selected-element");
-        });
-        selectedElement = el;
-        el.classList.add("selected-element");
-      });
-      // Double-click for optional inline editing
-      el.addEventListener("dblclick", (e) => {
-        e.stopPropagation();
-        if (tagName.toLowerCase() !== "img") {
-          el.contentEditable = "true";
-          el.focus();
-        }
-      });
-      el.addEventListener("blur", () => {
-        el.contentEditable = "false";
-      });
-
-      selectedCell.appendChild(el);
-    }
-
-    addH1Btn.addEventListener("click", () => {
-      addEditableElement("h1", "Heading 1");
-    });
-    addH2Btn.addEventListener("click", () => {
-      addEditableElement("h2", "Heading 2");
-    });
-    addH3Btn.addEventListener("click", () => {
-      addEditableElement("h3", "Heading 3");
-    });
-    addPBtn.addEventListener("click", () => {
-      addEditableElement("p", "Your paragraph text here...");
-    });
-    addImgBtn.addEventListener("click", () => {
-      if (!requireCell()) return;
-      const url = prompt("Enter image URL:");
-      if (url) {
-        addEditableElement("img", url);
-      }
-    });
-
-    /*******************************************************
-     * Style Modal
-     ********************************************************/
-    const styleModal = document.getElementById("styleModal");
-    const styleModalClose = document.getElementById("styleModalClose");
-    const openStyleModalBtn = document.getElementById("open-style-modal");
-
-    const contentInput = document.getElementById("content-input");
-    const typographySelect = document.getElementById("typography-select");
-    const alignSelect = document.getElementById("align-select");
-    const marginSelect = document.getElementById("margin-select");
-    const paddingSelect = document.getElementById("padding-select");
-    const applyStyleBtn = document.getElementById("apply-style");
-
-    openStyleModalBtn.addEventListener("click", () => {
-      if (!selectedElement) {
-        alert("Please select an element first.");
-        return;
-      }
-      fillStyleModal(selectedElement);
-      styleModal.style.display = "flex";
-    });
-
-    styleModalClose.addEventListener("click", () => {
-      styleModal.style.display = "none";
-    });
-    window.addEventListener("click", (e) => {
-      if (e.target === styleModal) {
-        styleModal.style.display = "none";
-      }
-    });
-
-    function fillStyleModal(el) {
-      if (el.tagName.toLowerCase() === "img") {
-        contentInput.value = el.src || "";
-      } else {
-        contentInput.value = el.textContent || "";
-      }
-      const tag = el.tagName.toLowerCase();
-      if (["h1", "h2", "h3", "p", "small", "xsmall"].includes(tag)) {
-        typographySelect.value = tag;
-      } else {
-        typographySelect.value = "";
-      }
-      // Check alignment
-      let alignment = "";
-      if (el.classList.contains("left")) alignment = "left";
-      if (el.classList.contains("center")) alignment = "center";
-      if (el.classList.contains("right")) alignment = "right";
-      alignSelect.value = alignment;
-
-      marginSelect.value = "";
-      paddingSelect.value = "";
-      el.classList.forEach(cls => {
-        if (cls.startsWith("margin")) marginSelect.value = cls;
-        if (cls.startsWith("padding")) paddingSelect.value = cls;
-      });
-    }
-
-    applyStyleBtn.addEventListener("click", () => {
-      if (!selectedElement) {
-        alert("No element selected for styling.");
-        return;
-      }
-      const el = selectedElement;
-      const contentVal = contentInput.value;
-      const typographyVal = typographySelect.value;
-      const alignVal = alignSelect.value;
-      const marginVal = marginSelect.value;
-      const paddingVal = paddingSelect.value;
-
-      // Update content
-      if (el.tagName.toLowerCase() === "img") {
-        el.src = contentVal;
-      } else {
-        el.textContent = contentVal;
-      }
-      // If typography changes
-      if (typographyVal && typographyVal !== el.tagName.toLowerCase()) {
-        const newEl = document.createElement(typographyVal);
-        if (typographyVal === "img") {
-          newEl.src = contentVal;
-          newEl.style.maxWidth = "100%";
-        } else {
-          newEl.textContent = contentVal;
-        }
-        newEl.style.cssText = el.style.cssText;
-        newEl.className = el.className;
-        newEl.classList.add("editable-element");
-        el.parentNode.replaceChild(newEl, el);
-        selectedElement = newEl;
-      }
-      // Remove .left, .center, .right
-      selectedElement.classList.remove("left", "center", "right");
-      if (alignVal) {
-        selectedElement.classList.add(alignVal);
-      }
-      // Remove old margin/padding
-      selectedElement.classList.forEach(cls => {
-        if (cls.startsWith("margin") || cls.startsWith("padding")) {
-          selectedElement.classList.remove(cls);
-        }
-      });
-      if (marginVal) selectedElement.classList.add(marginVal);
-      if (paddingVal) selectedElement.classList.add(paddingVal);
-
-      styleModal.style.display = "none";
-    });
-
-    /*******************************************************
-     * Export logic
-     ********************************************************/
-    const exportBtn = document.getElementById("export");
-    const exportCode = document.getElementById("export-code");
-
-    exportBtn.addEventListener("click", () => {
-      const previewClone = preview.cloneNode(true);
-
-      // Remove placeholder text from newly created grids if any
-      previewClone.querySelectorAll("r-grid").forEach(grid => {
-        grid.querySelectorAll("p").forEach(p => {
-          if (p.textContent.includes("Click grid to select")) {
-            p.remove();
-          }
-        });
-      });
-
-      // Remove editable-element, selected-element, contenteditable
-      previewClone.querySelectorAll(".editable-element").forEach(el => {
-        el.classList.remove("editable-element");
-      });
-      previewClone.querySelectorAll(".selected-element").forEach(el => {
-        el.classList.remove("selected-element");
-      });
-      previewClone.querySelectorAll("[contenteditable]").forEach(el => {
-        el.removeAttribute("contenteditable");
-      });
-
-      let exportedHTML = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-  <link rel="stylesheet" href="https://rsms.me/res/fonts/iaw.css">
-  <link rel="stylesheet" href="raster2.css">
-</head>
-<body>
-  ${previewClone.innerHTML}
-</body>
-</html>
-      `.trim();
-
-      exportCode.style.display = 'block';
-      exportCode.value = exportedHTML;
-
-      // Download the file
-      const blob = new Blob([exportedHTML], {type: "text/html"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = "layout.html";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
-  </script>
+  <!-- Load JavaScript files -->
+  <script src="history.js"></script>
+  <script src="grid.js"></script>
+  <script src="elements.js"></script>
+  <script src="styleControls.js"></script>
+  <script src="cellStyles.js"></script>
 </body>
 </html>
