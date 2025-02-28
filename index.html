@@ -45,6 +45,7 @@
       padding: 10px;
       cursor: pointer;
       background: #f9f9f9;
+      /* No forced text-align so user-chosen alignment can apply */
     }
     .selected {
       outline: 2px solid #1871e9; /* highlight a selected grid/cell */
@@ -173,6 +174,7 @@
     <p style="font-size:0.9em; margin-top:20px;">
       Instructions:
       <br>- Create a grid, add cells.
+      <br>- If mobile columns=1, new cells automatically get span-s=1.
       <br>- In that cell, add elements (H1, p, image, etc.).
       <br>- Click an element to select it (shows dashed border).
       <br>- "Style Selected Element" to open the modal for text, alignment, spacing, etc.
@@ -181,6 +183,7 @@
   </div>
   
   <div class="preview" id="preview">
+    <h2>Page Preview</h2>
   </div>
   
   <!-- Modal for styling an element -->
@@ -238,7 +241,7 @@
 
   <script>
     /*******************************************************
-     * grid.js-like code for creating a grid and cells
+     * grid.js-like code
      ********************************************************/
     let selectedGrid = null;
     let selectedCell = null; 
@@ -290,8 +293,11 @@
       if (!selectedGrid) return;
       const cell = document.createElement("r-cell");
       cell.setAttribute("span", "1-2"); // default column span
+      // If the grid's mobile columns=1, set cell's span-s=1
+      if (selectedGrid.getAttribute("columns-s") === "1") {
+        cell.setAttribute("span-s", "1");
+      }
       cell.classList.add("cell");
-      // Notice: We do NOT set cell.textContent = "Cell" now, removing that placeholder.
 
       // Clicking on a cell
       cell.addEventListener("click", (e) => {
@@ -320,7 +326,7 @@
     });
 
     /*******************************************************
-     * elements.js-like code for adding headings, paragraphs, images
+     * elements.js-like code
      ********************************************************/
     let selectedElement = null; // The element we style
 
@@ -394,7 +400,7 @@
     });
 
     /*******************************************************
-     * Style Modal: open, fill, apply
+     * Style Modal
      ********************************************************/
     const styleModal = document.getElementById("styleModal");
     const styleModalClose = document.getElementById("styleModalClose");
@@ -511,7 +517,7 @@
     exportBtn.addEventListener("click", () => {
       const previewClone = preview.cloneNode(true);
 
-      // Remove placeholder text from grids if it exists
+      // Remove placeholder text from newly created grids if any
       previewClone.querySelectorAll("r-grid").forEach(grid => {
         grid.querySelectorAll("p").forEach(p => {
           if (p.textContent.includes("Click grid to select")) {
