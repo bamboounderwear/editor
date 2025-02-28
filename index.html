@@ -47,9 +47,22 @@
     
     /* Debug class for grid visualization - style all cells within debug grid */
     r-grid.debug > * {
-      padding: 5px !important;
       cursor: pointer !important;
+      border: 1px dashed rgba(0, 0, 0, 0.2);
     }
+    
+    /* Override the default padding in debug mode to allow padding classes to work */
+    r-grid.debug > *[class*="padding"] {
+      padding: 0 !important;
+    }
+    
+    /* Explicitly apply padding classes in the editor */
+    .padding0 { padding: 0 !important; }
+    .padding1 { padding: calc(var(--lineHeight)*1) !important; }
+    .padding2 { padding: calc(var(--lineHeight)*2) !important; }
+    .padding3 { padding: calc(var(--lineHeight)*3) !important; }
+    .padding4 { padding: calc(var(--lineHeight)*4) !important; }
+    .padding5 { padding: calc(var(--lineHeight)*5) !important; }
     
     .selected {
       outline: 2px solid #1871e9; /* highlight a selected grid/cell */
@@ -67,7 +80,7 @@
     }
 
     /* Modal popup for styling */
-    #styleModal, #cellStyleModal {
+    #styleModal, #cellStyleModal, #pageStyleModal {
       display: none;
       position: fixed;
       top: 0; left: 0;
@@ -77,7 +90,7 @@
       align-items: center;
       z-index: 1000;
     }
-    #styleModalContent, #cellStyleModalContent {
+    #styleModalContent, #cellStyleModalContent, #pageStyleModalContent {
       background: #fff;
       padding: 20px;
       border-radius: 4px;
@@ -85,14 +98,14 @@
       max-width: 500px;
       position: relative;
     }
-    #styleModalClose, #cellStyleModalClose {
+    #styleModalClose, #cellStyleModalClose, #pageStyleModalClose {
       position: absolute;
       top: 10px; right: 10px;
       cursor: pointer;
       font-size: 20px;
       color: #888;
     }
-    #styleModalContent label, #cellStyleModalContent label {
+    #styleModalContent label, #cellStyleModalContent label, #pageStyleModalContent label {
       display: block;
       margin-top: 10px;
     }
@@ -101,7 +114,10 @@
     #styleModalContent button,
     #cellStyleModalContent input,
     #cellStyleModalContent select,
-    #cellStyleModalContent button {
+    #cellStyleModalContent button,
+    #pageStyleModalContent input,
+    #pageStyleModalContent select,
+    #pageStyleModalContent button {
       margin-top: 5px;
       display: block;
       width: 100%;
@@ -228,6 +244,13 @@
     
     <!-- Undo button -->
     <button id="undo-button" disabled>Undo</button>
+    
+    <!-- Page Styling -->
+    <section>
+      <h3>Page Styling</h3>
+      <button id="open-page-style-modal">Edit Page Style</button>
+    </section>
+    <hr>
     
     <!-- Create Grid -->
     <section>
@@ -477,6 +500,84 @@
       <button id="apply-cell-style">Apply</button>
     </div>
   </div>
+  
+  <!-- Modal for page styling -->
+  <div id="pageStyleModal">
+    <div id="pageStyleModalContent">
+      <span id="pageStyleModalClose">&times;</span>
+      <h3>Page Styling</h3>
+      
+      <label for="page-bg-color-select">Page Background Color:</label>
+      <select id="page-bg-color-select">
+        <option value="">Default (White)</option>
+        <option value="bg-white">White</option>
+        <option value="bg-light">Light</option>
+        <option value="bg-primary">Primary (Blue)</option>
+        <option value="bg-secondary">Secondary (Gray)</option>
+        <option value="bg-success">Success (Green)</option>
+        <option value="bg-danger">Danger (Red)</option>
+        <option value="bg-warning">Warning (Yellow)</option>
+        <option value="bg-info">Info (Light Blue)</option>
+        <option value="bg-dark">Dark</option>
+        <option value="bg-purple">Purple</option>
+        <option value="bg-pink">Pink</option>
+        <option value="bg-orange">Orange</option>
+        <option value="bg-teal">Teal</option>
+      </select>
+      
+      <div class="color-picker-container" id="page-bg-color-swatches">
+        <div class="color-swatch" data-color="bg-white" style="background-color: #ffffff;"></div>
+        <div class="color-swatch" data-color="bg-light" style="background-color: #f8f9fa;"></div>
+        <div class="color-swatch" data-color="bg-primary" style="background-color: #007bff;"></div>
+        <div class="color-swatch" data-color="bg-secondary" style="background-color: #6c757d;"></div>
+        <div class="color-swatch" data-color="bg-success" style="background-color: #28a745;"></div>
+        <div class="color-swatch" data-color="bg-danger" style="background-color: #dc3545;"></div>
+        <div class="color-swatch" data-color="bg-warning" style="background-color: #ffc107;"></div>
+        <div class="color-swatch" data-color="bg-info" style="background-color: #17a2b8;"></div>
+        <div class="color-swatch" data-color="bg-dark" style="background-color: #343a40;"></div>
+        <div class="color-swatch" data-color="bg-purple" style="background-color: #6f42c1;"></div>
+        <div class="color-swatch" data-color="bg-pink" style="background-color: #e83e8c;"></div>
+        <div class="color-swatch" data-color="bg-orange" style="background-color: #fd7e14;"></div>
+        <div class="color-swatch" data-color="bg-teal" style="background-color: #20c997;"></div>
+      </div>
+      
+      <label for="page-text-color-select">Page Text Color:</label>
+      <select id="page-text-color-select">
+        <option value="">Default (Black)</option>
+        <option value="text-white">White</option>
+        <option value="text-light">Light</option>
+        <option value="text-primary">Primary (Blue)</option>
+        <option value="text-secondary">Secondary (Gray)</option>
+        <option value="text-success">Success (Green)</option>
+        <option value="text-danger">Danger (Red)</option>
+        <option value="text-warning">Warning (Yellow)</option>
+        <option value="text-info">Info (Light Blue)</option>
+        <option value="text-dark">Dark</option>
+        <option value="text-purple">Purple</option>
+        <option value="text-pink">Pink</option>
+        <option value="text-orange">Orange</option>
+        <option value="text-teal">Teal</option>
+      </select>
+      
+      <div class="color-picker-container" id="page-text-color-swatches">
+        <div class="color-swatch" data-color="text-white" style="background-color: #ffffff;"></div>
+        <div class="color-swatch" data-color="text-light" style="background-color: #f8f9fa;"></div>
+        <div class="color-swatch" data-color="text-primary" style="background-color: #007bff;"></div>
+        <div class="color-swatch" data-color="text-secondary" style="background-color: #6c757d;"></div>
+        <div class="color-swatch" data-color="text-success" style="background-color: #28a745;"></div>
+        <div class="color-swatch" data-color="text-danger" style="background-color: #dc3545;"></div>
+        <div class="color-swatch" data-color="text-warning" style="background-color: #ffc107;"></div>
+        <div class="color-swatch" data-color="text-info" style="background-color: #17a2b8;"></div>
+        <div class="color-swatch" data-color="text-dark" style="background-color: #343a40;"></div>
+        <div class="color-swatch" data-color="text-purple" style="background-color: #6f42c1;"></div>
+        <div class="color-swatch" data-color="text-pink" style="background-color: #e83e8c;"></div>
+        <div class="color-swatch" data-color="text-orange" style="background-color: #fd7e14;"></div>
+        <div class="color-swatch" data-color="text-teal" style="background-color: #20c997;"></div>
+      </div>
+      
+      <button id="apply-page-style">Apply</button>
+    </div>
+  </div>
 
   <!-- Load JavaScript files -->
   <script src="history.js"></script>
@@ -484,5 +585,6 @@
   <script src="elements.js"></script>
   <script src="styleControls.js"></script>
   <script src="cellStyles.js"></script>
+  <script src="pageStyles.js"></script>
 </body>
 </html>

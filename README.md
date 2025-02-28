@@ -2,7 +2,7 @@
 
 A visual editor for creating responsive layouts using the [Raster Grid System](https://rsms.me/raster/).
 
-Link to main bolt editor: https://bolt.new/~/github-hvdsm9ze
+![Raster Grid Visual Editor](https://example.com/screenshot.png)
 
 ## Overview
 

@@ -15,7 +15,8 @@ const ACTION_TYPES = {
   ADD_ELEMENT: 'ADD_ELEMENT',
   DELETE_ELEMENT: 'DELETE_ELEMENT',
   STYLE_ELEMENT: 'STYLE_ELEMENT',
-  STYLE_CELL: 'STYLE_CELL'
+  STYLE_CELL: 'STYLE_CELL',
+  UPDATE_PAGE_STYLE: 'UPDATE_PAGE_STYLE'
 };
 
 // Add an action to the history stack
@@ -88,6 +89,9 @@ function undo() {
       break;
     case ACTION_TYPES.STYLE_CELL:
       undoStyleCell(action.data);
+      break;
+    case ACTION_TYPES.UPDATE_PAGE_STYLE:
+      undoUpdatePageStyle(action.data);
       break;
   }
   
@@ -199,6 +203,39 @@ function undoStyleCell(data) {
   if (cell) {
     // Restore previous styles
     cell.className = data.previousClasses;
+  }
+}
+
+function undoUpdatePageStyle(data) {
+  // Restore previous page styles
+  window.pageStyles.backgroundColor = data.previousBgColor;
+  window.pageStyles.textColor = data.previousTextColor;
+  
+  // Apply styles to the preview container
+  const preview = document.getElementById("preview");
+  
+  // Remove current background color classes
+  preview.classList.forEach(cls => {
+    if (cls.startsWith("bg-")) {
+      preview.classList.remove(cls);
+    }
+  });
+  
+  // Remove current text color classes
+  preview.classList.forEach(cls => {
+    if (cls.startsWith("text-")) {
+      preview.classList.remove(cls);
+    }
+  });
+  
+  // Add previous background color class if it existed
+  if (data.previousBgColor) {
+    preview.classList.add(data.previousBgColor);
+  }
+  
+  // Add previous text color class if it existed
+  if (data.previousTextColor) {
+    preview.classList.add(data.previousTextColor);
   }
 }
 

@@ -68,6 +68,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add event listeners
     addElementEventListeners(el);
     
+    // Remove the temporary padding from the cell when adding an element
+    if (window.selectedCell.style.padding === '10px') {
+      window.selectedCell.style.padding = '';
+    }
+    
     window.selectedCell.appendChild(el);
     
     // Add to history
@@ -122,6 +127,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add event listeners
     addElementEventListeners(ul);
     
+    // Remove the temporary padding from the cell when adding an element
+    if (window.selectedCell.style.padding === '10px') {
+      window.selectedCell.style.padding = '';
+    }
+    
     window.selectedCell.appendChild(ul);
     
     // Add to history
@@ -159,6 +169,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add event listeners
     addElementEventListeners(ul);
     
+    // Remove the temporary padding from the cell when adding an element
+    if (window.selectedCell.style.padding === '10px') {
+      window.selectedCell.style.padding = '';
+    }
+    
     window.selectedCell.appendChild(ul);
     
     // Add to history
@@ -180,6 +195,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Add event listeners
     addElementEventListeners(hr);
+    
+    // Remove the temporary padding from the cell when adding an element
+    if (window.selectedCell.style.padding === '10px') {
+      window.selectedCell.style.padding = '';
+    }
     
     window.selectedCell.appendChild(hr);
     
@@ -205,6 +225,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Add event listeners
     addElementEventListeners(pre);
+    
+    // Remove the temporary padding from the cell when adding an element
+    if (window.selectedCell.style.padding === '10px') {
+      window.selectedCell.style.padding = '';
+    }
     
     window.selectedCell.appendChild(pre);
     

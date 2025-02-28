@@ -182,6 +182,7 @@ addCellBtn.addEventListener('click', (e) => {
   const cell = document.createElement('r-cell');
   const cellId = window.historyManager.generateUniqueId();
   cell.setAttribute('data-id', cellId);
+  cell.classList.add('cell'); // Add a class to identify cells for styling
   
   // Get the next available span range
   const nextSpan = getNextAvailableSpan(selectedGrid);
@@ -189,6 +190,9 @@ addCellBtn.addEventListener('click', (e) => {
   
   // Set default mobile span so the cell spans one column on small screens
   cell.setAttribute('span-s', '1');
+  
+  // Add temporary padding to the cell until elements are added
+  cell.style.padding = '10px';
   
   // Add event listeners to the cell
   addCellEventListeners(cell);
@@ -338,11 +342,13 @@ exportBtn.addEventListener('click', (e) => {
     el.removeAttribute('data-id');
   });
   
-  // Remove all selected classes from cells
+  // Remove all selected classes from cells and inline padding styles
   previewClone.querySelectorAll('r-cell').forEach(cell => {
     cell.classList.remove('selected');
     cell.classList.remove('cell');
     cell.removeAttribute('data-id');
+    // Remove the temporary inline padding style
+    cell.style.padding = '';
   });
   
   // Extract all color classes used in the document
@@ -360,6 +366,19 @@ exportBtn.addEventListener('click', (e) => {
       }
     });
   });
+  
+  // Add page-level color classes if they exist
+  if (window.pageStyles && window.pageStyles.backgroundColor) {
+    if (!colorClasses.includes(window.pageStyles.backgroundColor)) {
+      colorClasses.push(window.pageStyles.backgroundColor);
+    }
+  }
+  
+  if (window.pageStyles && window.pageStyles.textColor) {
+    if (!colorClasses.includes(window.pageStyles.textColor)) {
+      colorClasses.push(window.pageStyles.textColor);
+    }
+  }
   
   // Generate CSS for the used color classes
   let colorStyles = '';
@@ -381,8 +400,25 @@ exportBtn.addEventListener('click', (e) => {
       }
     });
     
+    // Add min-height style for the body
+    colorStyles += '  body { min-height: calc(100vh - 60px); }\n';
+    
     colorStyles += '</style>\n';
+  } else {
+    // If no color classes, still add the min-height style
+    colorStyles = '<style>\n  body { min-height: calc(100vh - 60px); }\n</style>\n';
   }
+  
+  // Determine body classes for page-wide styling
+  let bodyClasses = [];
+  if (window.pageStyles && window.pageStyles.backgroundColor) {
+    bodyClasses.push(window.pageStyles.backgroundColor);
+  }
+  if (window.pageStyles && window.pageStyles.textColor) {
+    bodyClasses.push(window.pageStyles.textColor);
+  }
+  
+  const bodyClassAttribute = bodyClasses.length > 0 ? ` class="${bodyClasses.join(' ')}"` : '';
   
   const exportedHTML = `
 <!DOCTYPE html>
@@ -395,7 +431,7 @@ exportBtn.addEventListener('click', (e) => {
   <link rel=stylesheet href=raster2.css>
   ${colorStyles}
 </head>
-<body>
+<body${bodyClassAttribute}>
   ${previewClone.innerHTML}
 </body>
 </html>
