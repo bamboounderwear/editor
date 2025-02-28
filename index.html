@@ -1,39 +1,566 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Homepage</title>
+  <meta charset="UTF-8">
+  <!-- Ensure proper mobile scaling -->
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <!-- Raster CSS -->
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://rsms.me/res/fonts/iaw.css">
+  <link rel="stylesheet" href="raster2.css">
   <style>
+    /* Basic layout */
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-      background-color: #f5f5f5;
+      display: flex;
+      font-family: "Inter", sans-serif;
+      margin: 0;
+      height: 100vh;
     }
-    nav ul {
-      list-style: none;
-      padding: 0;
+    .sidebar {
+      width: 300px;
+      padding: 20px;
+      border-right: 1px solid #ccc;
+      box-sizing: border-box;
+      overflow-y: auto;
     }
-    nav li {
-      display: inline-block;
-      margin: 0 10px;
+    .preview {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
     }
-    a {
-      text-decoration: none;
-      color: #0073e6;
-      font-size: 18px;
+    h2, h3 {
+      margin-bottom: 10px;
+    }
+
+    /* Grid container style */
+    .grid-container {
+      margin-bottom: 20px;
+      border: 1px dashed #aaa;
+      padding: 10px;
+      position: relative;
+    }
+    /* Cells in a grid */
+    r-cell.cell {
+      border: 1px solid #ccc;
+      padding: 10px;
+      cursor: pointer;
+      background: #f9f9f9;
+    }
+    .selected {
+      outline: 2px solid #1871e9; /* highlight a selected grid/cell */
+    }
+
+    /* Editable elements styling */
+    .editable-element {
+      transition: outline 0.2s ease;
+    }
+    .editable-element:hover {
+      outline: 2px dashed rgba(24,113,233,0.5);
+    }
+    .editable-element.selected-element {
+      outline: 2px dashed #1871e9;
+    }
+
+    /* Modal popup for styling */
+    #styleModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #styleModalContent {
+      background: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+    }
+    #styleModalClose {
+      position: absolute;
+      top: 10px; right: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      color: #888;
+    }
+    #styleModalContent label {
+      display: block;
+      margin-top: 10px;
+    }
+    #styleModalContent input,
+    #styleModalContent select,
+    #styleModalContent button {
+      margin-top: 5px;
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Sidebar form styles */
+    .sidebar label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .sidebar input[type="number"],
+    .sidebar input[type="text"] {
+      width: 60px;
+      margin-right: 5px;
+    }
+    .sidebar button {
+      margin-top: 5px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    textarea {
+      font-family: monospace;
+      width: 100%;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to Our Homepage</h1>
-  <nav>
-    <ul>
-      <li><a href="/landing.html">Landing Page</a></li>
-      <li><a href="/ig.html">IG post</a></li>
-      <li><a href="/beams.html">Beams email</a></li>
-    </ul>
-  </nav>
+  <div class="sidebar">
+    <h2>Visual Editor</h2>
+    <!-- Create Grid -->
+    <section>
+      <h3>Create Grid</h3>
+      <label>
+        Desktop Columns:
+        <input type="number" id="grid-columns" value="6" min="1" max="30">
+      </label>
+      <label>
+        Mobile Columns:
+        <input type="number" id="grid-columns-mobile" value="1" min="1" max="30">
+      </label>
+      <button id="add-grid">Add Grid</button>
+    </section>
+    <hr>
+    <!-- Grid Actions -->
+    <section>
+      <h3>Grid Actions</h3>
+      <button id="add-cell" disabled>Add Cell to Selected Grid</button>
+      <div id="cell-controls" style="display:none; margin-top:10px;">
+        <label>
+          Update Cell Span Range:
+          <input type="text" id="cell-span" placeholder="1-2">
+        </label>
+        <button id="update-cell">Update Cell</button>
+      </div>
+    </section>
+    <hr>
+    <!-- Elements for selected cell -->
+    <section>
+      <h3>Add Element</h3>
+      <button id="add-h1">H1</button>
+      <button id="add-h2">H2</button>
+      <button id="add-h3">H3</button>
+      <button id="add-p">Paragraph</button>
+      <button id="add-img">Image</button>
+    </section>
+    <hr>
+    <!-- Style the selected element -->
+    <button id="open-style-modal">Style Selected Element</button>
+    <hr>
+    <!-- Export HTML -->
+    <section>
+      <h3>Export</h3>
+      <button id="export">Export HTML</button>
+      <textarea id="export-code" rows="8" style="display:none;"></textarea>
+    </section>
+    <p style="font-size:0.9em; margin-top:20px;">
+      Instructions:
+      <br>- Create a grid, add cells.
+      <br>- In that cell, add elements (H1, p, image, etc.).
+      <br>- Click an element to select it (shows dashed border).
+      <br>- "Style Selected Element" to open the modal for text, alignment, spacing, etc.
+      <br>- Export to download a cleaned HTML file.
+    </p>
+  </div>
+  
+  <div class="preview" id="preview">
+  </div>
+  
+  <!-- Modal for styling an element -->
+  <div id="styleModal">
+    <div id="styleModalContent">
+      <span id="styleModalClose">&times;</span>
+      <h3>Element Styling</h3>
+      <label for="content-input">Content or Image URL:</label>
+      <input type="text" id="content-input">
+      
+      <label for="typography-select">Typography Preset:</label>
+      <select id="typography-select">
+        <option value="">Default (unchanged)</option>
+        <option value="h1">Heading 1</option>
+        <option value="h2">Heading 2</option>
+        <option value="h3">Heading 3</option>
+        <option value="p">Paragraph</option>
+        <option value="small">Small</option>
+        <option value="xsmall">X-Small</option>
+      </select>
+      
+      <label for="align-select">Text Align:</label>
+      <select id="align-select">
+        <option value="">None</option>
+        <option value="left">left</option>
+        <option value="center">center</option>
+        <option value="right">right</option>
+      </select>
+
+      <label for="margin-select">Margin Class:</label>
+      <select id="margin-select">
+        <option value="">None</option>
+        <option value="margin0">margin0</option>
+        <option value="margin1">margin1</option>
+        <option value="margin2">margin2</option>
+        <option value="margin3">margin3</option>
+        <option value="margin4">margin4</option>
+        <option value="margin5">margin5</option>
+      </select>
+      
+      <label for="padding-select">Padding Class:</label>
+      <select id="padding-select">
+        <option value="">None</option>
+        <option value="padding0">padding0</option>
+        <option value="padding1">padding1</option>
+        <option value="padding2">padding2</option>
+        <option value="padding3">padding3</option>
+        <option value="padding4">padding4</option>
+        <option value="padding5">padding5</option>
+      </select>
+      
+      <button id="apply-style">Apply</button>
+    </div>
+  </div>
+
+  <script>
+    /*******************************************************
+     * grid.js-like code for creating a grid and cells
+     ********************************************************/
+    let selectedGrid = null;
+    let selectedCell = null; 
+    const addGridBtn = document.getElementById("add-grid");
+    const gridColumnsInput = document.getElementById("grid-columns");
+    const gridMobileInput = document.getElementById("grid-columns-mobile");
+    const preview = document.getElementById("preview");
+    const addCellBtn = document.getElementById("add-cell");
+    const cellControls = document.getElementById("cell-controls");
+    const cellSpanInput = document.getElementById("cell-span");
+    const updateCellBtn = document.getElementById("update-cell");
+
+    addGridBtn.addEventListener("click", () => {
+      const cols = gridColumnsInput.value;
+      const mobileCols = gridMobileInput.value;
+      const grid = document.createElement("r-grid");
+      grid.setAttribute("columns", cols);
+      grid.setAttribute("columns-s", mobileCols);
+      grid.classList.add("grid-container");
+      grid.innerHTML = '<p style="text-align:center; color:#777;">Click grid to select<br>then add cells</p>';
+      
+      // When clicking the grid (not its cells), select the grid
+      grid.addEventListener("click", (e) => {
+        if (e.target.tagName.toLowerCase() === "r-cell") return;
+        clearGridSelection();
+        clearCellSelection();
+        selectedGrid = grid;
+        grid.classList.add("selected");
+        addCellBtn.disabled = false;
+        e.stopPropagation();
+      });
+      preview.appendChild(grid);
+      clearGridSelection();
+      clearCellSelection();
+    });
+
+    function clearGridSelection() {
+      document.querySelectorAll("r-grid").forEach(g => g.classList.remove("selected"));
+      selectedGrid = null;
+      addCellBtn.disabled = true;
+    }
+    function clearCellSelection() {
+      document.querySelectorAll("r-cell.cell").forEach(c => c.classList.remove("selected"));
+      selectedCell = null;
+      cellControls.style.display = "none";
+    }
+
+    addCellBtn.addEventListener("click", () => {
+      if (!selectedGrid) return;
+      const cell = document.createElement("r-cell");
+      cell.setAttribute("span", "1-2"); // default column span
+      cell.classList.add("cell");
+      // Notice: We do NOT set cell.textContent = "Cell" now, removing that placeholder.
+
+      // Clicking on a cell
+      cell.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clearCellSelection();
+        selectedCell = cell;
+        cell.classList.add("selected");
+        cellControls.style.display = "block";
+        cellSpanInput.value = cell.getAttribute("span");
+      });
+      selectedGrid.appendChild(cell);
+    });
+
+    updateCellBtn.addEventListener("click", () => {
+      if (!selectedCell) return;
+      const newRange = cellSpanInput.value;
+      selectedCell.setAttribute("span", newRange);
+      selectedCell.classList.remove("selected");
+      clearCellSelection();
+    });
+
+    document.body.addEventListener("click", (e) => {
+      if (e.target.closest(".sidebar")) return;
+      clearGridSelection();
+      clearCellSelection();
+    });
+
+    /*******************************************************
+     * elements.js-like code for adding headings, paragraphs, images
+     ********************************************************/
+    let selectedElement = null; // The element we style
+
+    const addH1Btn = document.getElementById("add-h1");
+    const addH2Btn = document.getElementById("add-h2");
+    const addH3Btn = document.getElementById("add-h3");
+    const addPBtn = document.getElementById("add-p");
+    const addImgBtn = document.getElementById("add-img");
+
+    function requireCell() {
+      if (!selectedCell) {
+        alert("Please select a cell first.");
+        return false;
+      }
+      return true;
+    }
+
+    function addEditableElement(tagName, defaultText) {
+      if (!requireCell()) return;
+      const el = document.createElement(tagName);
+      if (tagName.toLowerCase() !== "img") {
+        el.textContent = defaultText;
+      } else {
+        el.src = defaultText;
+        el.style.maxWidth = "100%";
+      }
+      el.classList.add("editable-element");
+
+      // On click, select this element for styling
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.querySelectorAll(".editable-element").forEach(elem => {
+          elem.classList.remove("selected-element");
+        });
+        selectedElement = el;
+        el.classList.add("selected-element");
+      });
+      // Double-click for optional inline editing
+      el.addEventListener("dblclick", (e) => {
+        e.stopPropagation();
+        if (tagName.toLowerCase() !== "img") {
+          el.contentEditable = "true";
+          el.focus();
+        }
+      });
+      el.addEventListener("blur", () => {
+        el.contentEditable = "false";
+      });
+
+      selectedCell.appendChild(el);
+    }
+
+    addH1Btn.addEventListener("click", () => {
+      addEditableElement("h1", "Heading 1");
+    });
+    addH2Btn.addEventListener("click", () => {
+      addEditableElement("h2", "Heading 2");
+    });
+    addH3Btn.addEventListener("click", () => {
+      addEditableElement("h3", "Heading 3");
+    });
+    addPBtn.addEventListener("click", () => {
+      addEditableElement("p", "Your paragraph text here...");
+    });
+    addImgBtn.addEventListener("click", () => {
+      if (!requireCell()) return;
+      const url = prompt("Enter image URL:");
+      if (url) {
+        addEditableElement("img", url);
+      }
+    });
+
+    /*******************************************************
+     * Style Modal: open, fill, apply
+     ********************************************************/
+    const styleModal = document.getElementById("styleModal");
+    const styleModalClose = document.getElementById("styleModalClose");
+    const openStyleModalBtn = document.getElementById("open-style-modal");
+
+    const contentInput = document.getElementById("content-input");
+    const typographySelect = document.getElementById("typography-select");
+    const alignSelect = document.getElementById("align-select");
+    const marginSelect = document.getElementById("margin-select");
+    const paddingSelect = document.getElementById("padding-select");
+    const applyStyleBtn = document.getElementById("apply-style");
+
+    openStyleModalBtn.addEventListener("click", () => {
+      if (!selectedElement) {
+        alert("Please select an element first.");
+        return;
+      }
+      fillStyleModal(selectedElement);
+      styleModal.style.display = "flex";
+    });
+
+    styleModalClose.addEventListener("click", () => {
+      styleModal.style.display = "none";
+    });
+    window.addEventListener("click", (e) => {
+      if (e.target === styleModal) {
+        styleModal.style.display = "none";
+      }
+    });
+
+    function fillStyleModal(el) {
+      if (el.tagName.toLowerCase() === "img") {
+        contentInput.value = el.src || "";
+      } else {
+        contentInput.value = el.textContent || "";
+      }
+      const tag = el.tagName.toLowerCase();
+      if (["h1", "h2", "h3", "p", "small", "xsmall"].includes(tag)) {
+        typographySelect.value = tag;
+      } else {
+        typographySelect.value = "";
+      }
+      // Check alignment
+      let alignment = "";
+      if (el.classList.contains("left")) alignment = "left";
+      if (el.classList.contains("center")) alignment = "center";
+      if (el.classList.contains("right")) alignment = "right";
+      alignSelect.value = alignment;
+
+      marginSelect.value = "";
+      paddingSelect.value = "";
+      el.classList.forEach(cls => {
+        if (cls.startsWith("margin")) marginSelect.value = cls;
+        if (cls.startsWith("padding")) paddingSelect.value = cls;
+      });
+    }
+
+    applyStyleBtn.addEventListener("click", () => {
+      if (!selectedElement) {
+        alert("No element selected for styling.");
+        return;
+      }
+      const el = selectedElement;
+      const contentVal = contentInput.value;
+      const typographyVal = typographySelect.value;
+      const alignVal = alignSelect.value;
+      const marginVal = marginSelect.value;
+      const paddingVal = paddingSelect.value;
+
+      // Update content
+      if (el.tagName.toLowerCase() === "img") {
+        el.src = contentVal;
+      } else {
+        el.textContent = contentVal;
+      }
+      // If typography changes
+      if (typographyVal && typographyVal !== el.tagName.toLowerCase()) {
+        const newEl = document.createElement(typographyVal);
+        if (typographyVal === "img") {
+          newEl.src = contentVal;
+          newEl.style.maxWidth = "100%";
+        } else {
+          newEl.textContent = contentVal;
+        }
+        newEl.style.cssText = el.style.cssText;
+        newEl.className = el.className;
+        newEl.classList.add("editable-element");
+        el.parentNode.replaceChild(newEl, el);
+        selectedElement = newEl;
+      }
+      // Remove .left, .center, .right
+      selectedElement.classList.remove("left", "center", "right");
+      if (alignVal) {
+        selectedElement.classList.add(alignVal);
+      }
+      // Remove old margin/padding
+      selectedElement.classList.forEach(cls => {
+        if (cls.startsWith("margin") || cls.startsWith("padding")) {
+          selectedElement.classList.remove(cls);
+        }
+      });
+      if (marginVal) selectedElement.classList.add(marginVal);
+      if (paddingVal) selectedElement.classList.add(paddingVal);
+
+      styleModal.style.display = "none";
+    });
+
+    /*******************************************************
+     * Export logic
+     ********************************************************/
+    const exportBtn = document.getElementById("export");
+    const exportCode = document.getElementById("export-code");
+
+    exportBtn.addEventListener("click", () => {
+      const previewClone = preview.cloneNode(true);
+
+      // Remove placeholder text from grids if it exists
+      previewClone.querySelectorAll("r-grid").forEach(grid => {
+        grid.querySelectorAll("p").forEach(p => {
+          if (p.textContent.includes("Click grid to select")) {
+            p.remove();
+          }
+        });
+      });
+
+      // Remove editable-element, selected-element, contenteditable
+      previewClone.querySelectorAll(".editable-element").forEach(el => {
+        el.classList.remove("editable-element");
+      });
+      previewClone.querySelectorAll(".selected-element").forEach(el => {
+        el.classList.remove("selected-element");
+      });
+      previewClone.querySelectorAll("[contenteditable]").forEach(el => {
+        el.removeAttribute("contenteditable");
+      });
+
+      let exportedHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://rsms.me/res/fonts/iaw.css">
+  <link rel="stylesheet" href="raster2.css">
+</head>
+<body>
+  ${previewClone.innerHTML}
+</body>
+</html>
+      `.trim();
+
+      exportCode.style.display = 'block';
+      exportCode.value = exportedHTML;
+
+      // Download the file
+      const blob = new Blob([exportedHTML], {type: "text/html"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "layout.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
 </body>
 </html>
