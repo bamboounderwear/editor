@@ -53,6 +53,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add an editable element
   function addEditableElement(tagName, defaultText) {
     if (!requireCell()) return;
+    
+    // Ensure we're using the correct selected cell
+    const targetCell = window.selectedCell;
+    if (!targetCell) {
+      alert("No cell selected. Please select a cell first.");
+      return;
+    }
+    
     const el = document.createElement(tagName);
     const elementId = window.historyManager.generateUniqueId();
     el.setAttribute('data-id', elementId);
@@ -69,16 +77,16 @@ document.addEventListener("DOMContentLoaded", () => {
     addElementEventListeners(el);
     
     // Remove the temporary padding from the cell when adding an element
-    if (window.selectedCell.style.padding === '10px') {
-      window.selectedCell.style.padding = '';
+    if (targetCell.style.padding === '10px') {
+      targetCell.style.padding = '';
     }
     
-    window.selectedCell.appendChild(el);
+    targetCell.appendChild(el);
     
     // Add to history
     window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.ADD_ELEMENT, {
       elementId: elementId,
-      cellId: window.selectedCell.getAttribute('data-id'),
+      cellId: targetCell.getAttribute('data-id'),
       tagName: tagName,
       content: defaultText
     });
@@ -112,6 +120,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add List
   addListBtn.addEventListener("click", () => {
     if (!requireCell()) return;
+    
+    // Ensure we're using the correct selected cell
+    const targetCell = window.selectedCell;
+    if (!targetCell) {
+      alert("No cell selected. Please select a cell first.");
+      return;
+    }
+    
     const ul = document.createElement("ul");
     const elementId = window.historyManager.generateUniqueId();
     ul.setAttribute('data-id', elementId);
@@ -128,16 +144,16 @@ document.addEventListener("DOMContentLoaded", () => {
     addElementEventListeners(ul);
     
     // Remove the temporary padding from the cell when adding an element
-    if (window.selectedCell.style.padding === '10px') {
-      window.selectedCell.style.padding = '';
+    if (targetCell.style.padding === '10px') {
+      targetCell.style.padding = '';
     }
     
-    window.selectedCell.appendChild(ul);
+    targetCell.appendChild(ul);
     
     // Add to history
     window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.ADD_ELEMENT, {
       elementId: elementId,
-      cellId: window.selectedCell.getAttribute('data-id'),
+      cellId: targetCell.getAttribute('data-id'),
       tagName: "ul",
       content: ul.innerHTML
     });
@@ -146,6 +162,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add Task List
   addTaskListBtn.addEventListener("click", () => {
     if (!requireCell()) return;
+    
+    // Ensure we're using the correct selected cell
+    const targetCell = window.selectedCell;
+    if (!targetCell) {
+      alert("No cell selected. Please select a cell first.");
+      return;
+    }
+    
     const ul = document.createElement("ul");
     const elementId = window.historyManager.generateUniqueId();
     ul.setAttribute('data-id', elementId);
@@ -170,16 +194,16 @@ document.addEventListener("DOMContentLoaded", () => {
     addElementEventListeners(ul);
     
     // Remove the temporary padding from the cell when adding an element
-    if (window.selectedCell.style.padding === '10px') {
-      window.selectedCell.style.padding = '';
+    if (targetCell.style.padding === '10px') {
+      targetCell.style.padding = '';
     }
     
-    window.selectedCell.appendChild(ul);
+    targetCell.appendChild(ul);
     
     // Add to history
     window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.ADD_ELEMENT, {
       elementId: elementId,
-      cellId: window.selectedCell.getAttribute('data-id'),
+      cellId: targetCell.getAttribute('data-id'),
       tagName: "ul",
       content: ul.innerHTML
     });
@@ -188,6 +212,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add Divider (HR)
   addDividerBtn.addEventListener("click", () => {
     if (!requireCell()) return;
+    
+    // Ensure we're using the correct selected cell
+    const targetCell = window.selectedCell;
+    if (!targetCell) {
+      alert("No cell selected. Please select a cell first.");
+      return;
+    }
+    
     const hr = document.createElement("hr");
     const elementId = window.historyManager.generateUniqueId();
     hr.setAttribute('data-id', elementId);
@@ -197,16 +229,16 @@ document.addEventListener("DOMContentLoaded", () => {
     addElementEventListeners(hr);
     
     // Remove the temporary padding from the cell when adding an element
-    if (window.selectedCell.style.padding === '10px') {
-      window.selectedCell.style.padding = '';
+    if (targetCell.style.padding === '10px') {
+      targetCell.style.padding = '';
     }
     
-    window.selectedCell.appendChild(hr);
+    targetCell.appendChild(hr);
     
     // Add to history
     window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.ADD_ELEMENT, {
       elementId: elementId,
-      cellId: window.selectedCell.getAttribute('data-id'),
+      cellId: targetCell.getAttribute('data-id'),
       tagName: "hr",
       content: ""
     });
@@ -215,6 +247,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add Monospace Text
   addCodeBtn.addEventListener("click", () => {
     if (!requireCell()) return;
+    
+    // Ensure we're using the correct selected cell
+    const targetCell = window.selectedCell;
+    if (!targetCell) {
+      alert("No cell selected. Please select a cell first.");
+      return;
+    }
+    
     const pre = document.createElement("pre");
     const elementId = window.historyManager.generateUniqueId();
     pre.setAttribute('data-id', elementId);
@@ -227,16 +267,16 @@ document.addEventListener("DOMContentLoaded", () => {
     addElementEventListeners(pre);
     
     // Remove the temporary padding from the cell when adding an element
-    if (window.selectedCell.style.padding === '10px') {
-      window.selectedCell.style.padding = '';
+    if (targetCell.style.padding === '10px') {
+      targetCell.style.padding = '';
     }
     
-    window.selectedCell.appendChild(pre);
+    targetCell.appendChild(pre);
     
     // Add to history
     window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.ADD_ELEMENT, {
       elementId: elementId,
-      cellId: window.selectedCell.getAttribute('data-id'),
+      cellId: targetCell.getAttribute('data-id'),
       tagName: "pre",
       content: pre.innerHTML
     });

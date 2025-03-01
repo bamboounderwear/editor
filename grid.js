@@ -48,8 +48,8 @@ function clearGridSelection() {
 function clearCellSelection() {
   document.querySelectorAll('r-cell.selected').forEach(cell => cell.classList.remove('selected'));
   selectedCell = null;
+  window.selectedCell = null; // Clear the global reference
   cellControls.style.display = 'none';
-  window.selectedCell = null;
   deleteCellBtn.disabled = true;
   
   // Disable all element buttons when no cell is selected
@@ -204,6 +204,20 @@ addCellBtn.addEventListener('click', (e) => {
   window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.ADD_CELL, {
     cellId: cellId,
     gridId: selectedGrid.getAttribute('data-id')
+  });
+  
+  // Automatically select the newly added cell
+  clearCellSelection();
+  selectedCell = cell;
+  window.selectedCell = cell; // Set the global reference
+  cell.classList.add('selected');
+  cellSpanInput.value = cell.getAttribute('span');
+  cellControls.style.display = 'block';
+  deleteCellBtn.disabled = false;
+  
+  // Enable all element buttons for the newly selected cell
+  elementButtons.forEach(button => {
+    button.disabled = false;
   });
 });
 
