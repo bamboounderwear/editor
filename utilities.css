@@ -1,0 +1,15 @@
+/* utilities.css */
+
+/* cell content alignment utilities */
+
+.align-top {
+  align-self: start;
+}
+
+.align-middle {
+  align-self: center;
+}
+
+.align-bottom {
+  align-self: end;
+}

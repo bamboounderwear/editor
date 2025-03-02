@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const cellHeightSelect = document.getElementById("cell-height-select");
   const cellPaddingSelect = document.getElementById("cell-padding-select");
+  const cellContentAlignSelect = document.getElementById("cell-content-align-select");
   const cellBgColorSelect = document.getElementById("cell-bg-color-select");
   const applyCellStyleBtn = document.getElementById("apply-cell-style");
   
@@ -109,6 +110,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     cellPaddingSelect.value = paddingClass;
     
+    // Check content alignment
+    let contentAlignClass = "";
+    if (cell.classList.contains("align-top")) contentAlignClass = "align-top";
+    if (cell.classList.contains("align-middle")) contentAlignClass = "align-middle";
+    if (cell.classList.contains("align-bottom")) contentAlignClass = "align-bottom";
+    cellContentAlignSelect.value = contentAlignClass;
+    
     // Check background color
     let bgColorClass = "";
     customBgColorContainer.style.display = "none";
@@ -161,6 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const heightVal = cellHeightSelect.value;
     const paddingVal = cellPaddingSelect.value;
+    const contentAlignVal = cellContentAlignSelect.value;
     const bgColorVal = cellBgColorSelect.value;
 
     // Remove existing height classes
@@ -180,6 +189,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
     if (paddingVal) cell.classList.add(paddingVal);
+    
+    // Update content alignment
+    cell.classList.remove("align-top", "align-middle", "align-bottom");
+    if (contentAlignVal) {
+      cell.classList.add(contentAlignVal);
+    }
     
     // Update background color
     cell.classList.forEach(cls => {

@@ -670,6 +670,7 @@ exportBtn.addEventListener('click', (e) => {
   <link rel=stylesheet href=https://rsms.me/inter/inter.css>
   <link rel=stylesheet href=https://rsms.me/res/fonts/iaw.css>
 ${googleFontsLinks}  <link rel=stylesheet href=raster2.css>
+  <link rel=stylesheet href=utilities.css>
   ${colorStyles}${fontAndContainerStyles}
 </head>
 <body${bodyClassAttribute}>
