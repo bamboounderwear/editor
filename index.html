@@ -17,8 +17,8 @@
       height: 100vh;
     }
     .sidebar {
-      width: 300px;
-      padding: 20px;
+      width: 280px;
+      padding: 15px;
       border-right: 1px solid #ccc;
       box-sizing: border-box;
       overflow-y: auto;
@@ -30,6 +30,7 @@
     }
     h2, h3 {
       margin-bottom: 10px;
+      font-size: 1rem;
     }
 
     /* Grid container style */
@@ -93,7 +94,7 @@
     #styleModalContent, #cellStyleModalContent, #pageStyleModalContent {
       background: #fff;
       padding: 20px;
-      border-radius: 4px;
+      border-radius: 0px;
       width: 90%;
       max-width: 500px;
       position: relative;
@@ -127,7 +128,8 @@
     /* Sidebar form styles */
     .sidebar label {
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
+      font-size: 0.85rem;
     }
     .sidebar input[type="number"],
     .sidebar input[type="text"] {
@@ -136,8 +138,13 @@
     }
     .sidebar button {
       margin-top: 5px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       display: block;
+      padding: 5px 10px 5px 10px;
+      background-color: black;
+      color: white;
+      border: 0px;
+      font-size: 0.85rem;
     }
     textarea {
       font-family: monospace;
@@ -146,8 +153,11 @@
     
     /* Action buttons container */
     .action-buttons {
-      margin-top: 10px;
-      margin-bottom: 15px;
+      margin-top: 8px;
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
     }
     
     /* Disabled button styling */
@@ -163,17 +173,25 @@
       gap: 5px;
     }
     
+    /* Top buttons container */
+    .top-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
     /* Undo button styling */
     #undo-button {
       background-color: #f0f0f0;
       border: 1px solid #ccc;
+      color: black;
       padding: 8px 15px;
-      border-radius: 4px;
+      border-radius: 0px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 15px;
+      flex: 1;
     }
     
     #undo-button:hover:not(:disabled) {
@@ -184,6 +202,47 @@
       content: "↩";
       margin-right: 5px;
       font-size: 16px;
+    }
+    
+    /* Export button styling */
+    #export {
+      background-color: #28a745;
+      color: white;
+      border: 1px solid #218838;
+      padding: 8px 15px;
+      border-radius: 0px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+    }
+    
+    #export:hover {
+      background-color: #218838;
+    }
+    
+    /* Custom color input container */
+    .custom-color-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    
+    .custom-color-container input[type="color"] {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .custom-color-container input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 0px;
     }
     
     /* Color picker styles */
@@ -197,7 +256,7 @@
     .color-swatch {
       width: 24px;
       height: 24px;
-      border-radius: 4px;
+      border-radius: 0px;
       cursor: pointer;
       border: 1px solid #ddd;
     }
@@ -236,54 +295,249 @@
     .text-pink { color: #e83e8c; }
     .text-orange { color: #fd7e14; }
     .text-teal { color: #20c997; }
+    
+    /* Button styling */
+    button.editable-element {
+      padding: 8px 16px;
+      background-color: #000000;
+      color: white;
+      border: none;
+      border-radius: 0px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    
+    /* Font size utilities */
+    .font-size-small { --fontSize: 10px !important; }
+    .font-size-medium { --fontSize: 12px !important; }
+    .font-size-large { --fontSize: 14px !important; }
+    .font-size-xlarge { --fontSize: 16px !important; }
+    
+    /* Font family utilities */
+    .heading-font-inter h1, .heading-font-inter h2, .heading-font-inter h3, .heading-font-inter h4, .heading-font-inter h5, .heading-font-inter h6 {
+      font-family: "Inter", sans-serif;
+    }
+    .heading-font-lora h1, .heading-font-lora h2, .heading-font-lora h3, .heading-font-lora h4, .heading-font-lora h5, .heading-font-lora h6 {
+      font-family: "Lora", serif;
+    }
+    .heading-font-poppins h1, .heading-font-poppins h2, .heading-font-poppins h3, .heading-font-poppins h4, .heading-font-poppins h5, .heading-font-poppins h6 {
+      font-family: "Poppins", sans-serif;
+    }
+    .heading-font-oswald h1, .heading-font-oswald h2, .heading-font-oswald h3, .heading-font-oswald h4, .heading-font-oswald h5, .heading-font-oswald h6 {
+      font-family: "Oswald", sans-serif;
+    }
+    
+    .body-font-inter {
+      font-family: "Inter", sans-serif;
+    }
+    .body-font-lora {
+      font-family: "Lora", serif;
+    }
+    .body-font-poppins {
+      font-family: "Poppins", sans-serif;
+    }
+    .body-font-oswald {
+      font-family: "Oswald", sans-serif;
+    }
+    
+    /* Font weight utilities */
+    .heading-weight-light h1, .heading-weight-light h2, .heading-weight-light h3, .heading-weight-light h4, .heading-weight-light h5, .heading-weight-light h6 {
+      font-weight: 300;
+    }
+    .heading-weight-normal h1, .heading-weight-normal h2, .heading-weight-normal h3, .heading-weight-normal h4, .heading-weight-normal h5, .heading-weight-normal h6 {
+      font-weight: 400;
+    }
+    .heading-weight-medium h1, .heading-weight-medium h2, .heading-weight-medium h3, .heading-weight-medium h4, .heading-weight-medium h5, .heading-weight-medium h6 {
+      font-weight: 500;
+    }
+    .heading-weight-semibold h1, .heading-weight-semibold h2, .heading-weight-semibold h3, .heading-weight-semibold h4, .heading-weight-semibold h5, .heading-weight-semibold h6 {
+      font-weight: 600;
+    }
+    .heading-weight-bold h1, .heading-weight-bold h2, .heading-weight-bold h3, .heading-weight-bold h4, .heading-weight-bold h5, .heading-weight-bold h6 {
+      font-weight: 700;
+    }
+    
+    .body-weight-light {
+      font-weight: 300;
+    }
+    .body-weight-normal {
+      font-weight: 400;
+    }
+    .body-weight-medium {
+      font-weight: 500;
+    }
+    .body-weight-semibold {
+      font-weight: 600;
+    }
+    .body-weight-bold {
+      font-weight: 700;
+    }
+    
+    /* Container width utilities - only for export, not for preview */
+    .container-fluid {
+      /* No max-width for fluid containers */
+    }
+    .container-xl {
+      /* max-width: 1200px; - Only applied in export */
+    }
+    .container-lg {
+      /* max-width: 992px; - Only applied in export */
+    }
+    .container-md {
+      /* max-width: 768px; - Only applied in export */
+    }
+    .container-sm {
+      /* max-width: 576px; - Only applied in export */
+    }
+
+    /* Page style button */
+    #open-page-style-modal {
+      display: block;
+      width: 100%;
+      padding: 12px 15px;
+      margin: 15px 0;
+      background-color: transparent;
+      color: #000;
+      border: 2px solid #000;
+      font-weight: 600;
+      font-size: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    #open-page-style-modal:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+    /* Section styling */
+    .sidebar section {
+      margin-bottom: 15px;
+    }
+
+    .sidebar hr {
+      margin: 10px 0;
+      border: none;
+      border-top: 1px solid #eee;
+    }
+
+    /* Grid inputs */
+    .grid-inputs {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .grid-inputs label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0;
+    }
+
+    .grid-inputs input {
+      width: 40px;
+      padding: 3px;
+      margin-left: 5px;
+    }
+    
+    /* Dropdown button */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    .dropdown-btn {
+      width: 100%;
+      padding: 8px 12px;
+      background-color: #000;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    
+    .dropdown-btn:after {
+      content: "▼";
+      font-size: 0.7rem;
+      margin-left: 5px;
+    }
+    
+    .dropdown-btn.active:after {
+      content: "▲";
+    }
+    
+    .dropdown-content {
+      display: none;
+      background-color: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ddd;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 2px;
+    }
+    
+    .dropdown-content.show {
+      display: block;
+    }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <h2>Visual Editor</h2>
+    <!-- Page Style Button -->
+    <button id="open-page-style-modal">Edit Page Style</button>
     
-    <!-- Undo button -->
-    <button id="undo-button" disabled>Undo</button>
-    
-    <!-- Page Styling -->
-    <section>
-      <h3>Page Styling</h3>
-      <button id="open-page-style-modal">Edit Page Style</button>
-    </section>
-    <hr>
+    <!-- Top buttons: Undo and Export -->
+    <div class="top-buttons">
+      <button id="undo-button" disabled>Undo</button>
+      <button id="export">Export HTML</button>
+    </div>
     
     <!-- Create Grid -->
     <section>
-      <h3>Create Grid</h3>
-      <label>
-        Desktop Columns:
-        <input type="number" id="grid-columns" value="6" min="1" max="30">
-      </label>
-      <label>
-        Mobile Columns:
-        <input type="number" id="grid-columns-mobile" value="1" min="1" max="30">
-      </label>
-      <button id="add-grid">Add Grid</button>
-      <button id="toggle-base-grid">Toggle Baseline Grid</button>
+      <div class="dropdown">
+        <button class="dropdown-btn" id="create-grid-btn">Create Grid</button>
+        <div class="dropdown-content" id="create-grid-content">
+          <div class="grid-inputs">
+            <label>
+              Desktop:
+              <input type="number" id="grid-columns" value="6" min="1" max="30">
+            </label>
+            <label>
+              Mobile:
+              <input type="number" id="grid-columns-mobile" value="1" min="1" max="30">
+            </label>
+          </div>
+          <button id="add-grid">Add Grid</button>
+        </div>
+      </div>
     </section>
     <hr>
     <!-- Actions -->
     <section>
       <h3>Actions</h3>
       <button id="add-cell" disabled>Add Cell to Selected Grid</button>
-      <div id="cell-controls" style="display:none; margin-top:10px;">
+      <div id="cell-controls" style="display:none; margin-top:8px;">
         <label>
-          Update Cell Span Range:
+          Cell Span:
           <input type="text" id="cell-span" placeholder="1-2">
         </label>
-        <button id="update-cell">Update Cell</button>
-        <button id="style-cell">Style Cell</button>
+        <div class="action-buttons">
+          <button id="update-cell">Update Cell</button>
+          <button id="style-cell">Style Cell</button>
+        </div>
       </div>
-      <button id="open-style-modal" disabled>Style Selected Element</button>
       <div class="action-buttons">
-        <button id="delete-element" disabled>Delete Selected Element</button>
-        <button id="delete-cell" disabled>Delete Selected Cell</button>
-        <button id="delete-grid" disabled>Delete Selected Grid</button>
+        <button id="open-style-modal" disabled>Style Element</button>
+        <button id="delete-element" disabled>Delete Element</button>
+        <button id="delete-cell" disabled>Delete Cell</button>
+        <button id="delete-grid" disabled>Delete Grid</button>
       </div>
     </section>
     <hr>
@@ -295,6 +549,7 @@
         <button id="add-h2">H2</button>
         <button id="add-h3">H3</button>
         <button id="add-p">Paragraph</button>
+        <button id="add-button">Button</button>
         <button id="add-img">Image</button>
         <button id="add-list">List</button>
         <button id="add-task-list">Task List</button>
@@ -302,25 +557,9 @@
         <button id="add-code">Monospace</button>
       </div>
     </section>
-    <hr>
-    <!-- Export HTML -->
-    <section>
-      <h3>Export</h3>
-      <button id="export">Export HTML</button>
-      <textarea id="export-code" rows="8" style="display:none;"></textarea>
-    </section>
-    <p style="font-size:0.9em; margin-top:20px;">
-      Instructions:
-      <br>- Create a grid, add cells.
-      <br>- If mobile columns=1, new cells automatically get span-s=1.
-      <br>- In that cell, add elements (H1, p, image, etc.).
-      <br>- Click an element to select it (shows dashed border).
-      <br>- "Style Selected Element" to open the modal for text, alignment, spacing, etc.
-      <br>- "Style Cell" to set height and other cell-specific properties.
-      <br>- Use delete buttons to remove elements, cells, or grids.
-      <br>- Use the Undo button to revert your last action.
-      <br>- Export to download a cleaned HTML file.
-    </p>
+    
+    <!-- Hidden textarea for export code -->
+    <textarea id="export-code" rows="8" style="display:none;"></textarea>
   </div>
   
   <div class="preview" id="preview">
@@ -342,6 +581,7 @@
         <option value="h2">Heading 2</option>
         <option value="h3">Heading 3</option>
         <option value="p">Paragraph</option>
+        <option value="button">Button</option>
         <option value="small">Small</option>
         <option value="xsmall">X-Small</option>
       </select>
@@ -381,6 +621,7 @@
         <option value="text-pink">Pink</option>
         <option value="text-orange">Orange</option>
         <option value="text-teal">Teal</option>
+        <option value="custom">Custom Color</option>
       </select>
       
       <div class="color-picker-container" id="text-color-swatches">
@@ -397,6 +638,11 @@
         <div class="color-swatch" data-color="text-pink" style="background-color: #e83e8c;"></div>
         <div class="color-swatch" data-color="text-orange" style="background-color: #fd7e14;"></div>
         <div class="color-swatch" data-color="text-teal" style="background-color: #20c997;"></div>
+      </div>
+      
+      <div id="custom-text-color-container" class="custom-color-container" style="display: none;">
+        <input type="color" id="custom-text-color-picker" value="#000000">
+        <input type="text" id="custom-text-color-hex" placeholder="#000000" value="#000000">
       </div>
 
       <label for="margin-select">Margin Class:</label>
@@ -427,8 +673,7 @@
 
   <!-- Modal for styling a cell -->
   <div id="cellStyleModal">
-    <div id="cellStyleModalContent">
-      <span id="cellStyleModalClose">&times;</span>
+    <div id="cellStyleModalContent"> <span id="cellStyleModalClose">&times;</span>
       <h3>Cell Styling</h3>
       
       <label for="cell-height-select">Height Class:</label>
@@ -477,6 +722,7 @@
         <option value="bg-pink">Pink</option>
         <option value="bg-orange">Orange</option>
         <option value="bg-teal">Teal</option>
+        <option value="custom">Custom Color</option>
       </select>
       
       <div class="color-picker-container" id="bg-color-swatches">
@@ -493,6 +739,11 @@
         <div class="color-swatch" data-color="bg-pink" style="background-color: #e83e8c;"></div>
         <div class="color-swatch" data-color="bg-orange" style="background-color: #fd7e14;"></div>
         <div class="color-swatch" data-color="bg-teal" style="background-color: #20c997;"></div>
+      </div>
+      
+      <div id="custom-bg-color-container" class="custom-color-container" style="display: none;">
+        <input type="color" id="custom-bg-color-picker" value="#ffffff">
+        <input type="text" id="custom-bg-color-hex" placeholder="#ffffff" value="#ffffff">
       </div>
       
       <button id="apply-cell-style">Apply</button>
@@ -521,6 +772,7 @@
         <option value="bg-pink">Pink</option>
         <option value="bg-orange">Orange</option>
         <option value="bg-teal">Teal</option>
+        <option value="custom">Custom Color</option>
       </select>
       
       <div class="color-picker-container" id="page-bg-color-swatches">
@@ -539,6 +791,11 @@
         <div class="color-swatch" data-color="bg-teal" style="background-color: #20c997;"></div>
       </div>
       
+      <div id="custom-page-bg-color-container" class="custom-color-container" style="display: none;">
+        <input type="color" id="custom-page-bg-color-picker" value="#ffffff">
+        <input type="text" id="custom-page-bg-color-hex" placeholder="#ffffff" value="#ffffff">
+      </div>
+      
       <label for="page-text-color-select">Page Text Color:</label>
       <select id="page-text-color-select">
         <option value="">Default (Black)</option>
@@ -555,6 +812,7 @@
         <option value="text-pink">Pink</option>
         <option value="text-orange">Orange</option>
         <option value="text-teal">Teal</option>
+        <option value="custom">Custom Color</option>
       </select>
       
       <div class="color-picker-container" id="page-text-color-swatches">
@@ -573,6 +831,68 @@
         <div class="color-swatch" data-color="text-teal" style="background-color: #20c997;"></div>
       </div>
       
+      <div id="custom-page-text-color-container" class="custom-color-container" style="display: none;">
+        <input type="color" id="custom-page-text-color-picker" value="#000000">
+        <input type="text" id="custom-page-text-color-hex" placeholder="#000000" value="#000000">
+      </div>
+      
+      <label for="page-font-size-select">Font Size:</label>
+      <select id="page-font-size-select">
+        <option value="">Default (12px)</option>
+        <option value="font-size-small">Small (10px)</option>
+        <option value="font-size-medium">Medium (12px)</option>
+        <option value="font-size-large">Large (14px)</option>
+        <option value="font-size-xlarge">X-Large (16px)</option>
+      </select>
+      
+      <label for="heading-font-select">Heading Font Family:</label>
+      <select id="heading-font-select">
+        <option value="">Default (Inter)</option>
+        <option value="heading-font-inter">Inter</option>
+        <option value="heading-font-lora">Lora</option>
+        <option value="heading-font-poppins">Poppins</option>
+        <option value="heading-font-oswald">Oswald</option>
+      </select>
+      
+      <label for="heading-weight-select">Heading Font Weight:</label>
+      <select id="heading-weight-select">
+        <option value="">Default</option>
+        <option value="heading-weight-light">Light (300)</option>
+        <option value="heading-weight-normal">Normal (400)</option>
+        <option value="heading-weight-medium">Medium (500)</option>
+        <option value="heading-weight-semibold">Semi-Bold (600)</option>
+        <option value="heading-weight-bold">Bold (700)</option>
+      </select>
+      
+      <label for="body-font-select">Body Font Family:</label>
+      <select id="body-font-select">
+        <option value="">Default (Inter)</option>
+        <option value="body-font-inter">Inter</option>
+        <option value="body-font-lora">Lora</option>
+        <option value="body-font-poppins">Poppins</option>
+        <option value="body-font-oswald">Oswald</option>
+      </select>
+      
+      <label for="body-weight-select">Body Font Weight:</label>
+      <select id="body-weight-select">
+        <option value="">Default</option>
+        <option value="body-weight-light">Light (300)</option>
+        <option value="body-weight-normal">Normal (400)</option>
+        <option value="body-weight-medium">Medium (500)</option>
+        <option value="body-weight-semibold">Semi-Bold (600)</option>
+        <option value="body-weight-bold">Bold (700)</option>
+      </select>
+      
+      <label for="container-width-select">Container Width:</label>
+      <select id="container-width-select">
+        <option value="">Default (Fluid)</option>
+        <option value="container-fluid">Fluid (Full Width)</option>
+        <option value="container-xl">X-Large (1200px)</option>
+        <option value="container-lg">Large (992px)</option>
+        <option value="container-md">Medium (768px)</option>
+        <option value="container-sm">Small (576px)</option>
+      </select>
+      
       <button id="apply-page-style">Apply</button>
     </div>
   </div>
@@ -584,5 +904,30 @@
   <script src="styleControls.js"></script>
   <script src="cellStyles.js"></script>
   <script src="pageStyles.js"></script>
+  <script>
+    // Dropdown functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const dropdownBtn = document.getElementById('create-grid-btn');
+      const dropdownContent = document.getElementById('create-grid-content');
+      
+      dropdownBtn.addEventListener('click', function() {
+        dropdownContent.classList.toggle('show');
+        dropdownBtn.classList.toggle('active');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!event.target.closest('.dropdown') && dropdownContent.classList.contains('show')) {
+          dropdownContent.classList.remove('show');
+          dropdownBtn.classList.remove('active');
+        }
+      });
+      
+      // Prevent dropdown from closing when clicking inside it
+      dropdownContent.addEventListener('click', function(event) {
+        event.stopPropagation();
+      });
+    });
+  </script>
 </body>
 </html>

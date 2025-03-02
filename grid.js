@@ -25,9 +25,6 @@ const deleteGridBtn = document.getElementById('delete-grid');
 // Element buttons
 const elementButtons = document.querySelectorAll('.element-buttons button');
 
-// Toggle base grid button
-const toggleBaseGridBtn = document.getElementById('toggle-base-grid');
-
 // Undo button
 const undoBtn = document.getElementById('undo-button');
 
@@ -106,7 +103,7 @@ addGridBtn.addEventListener('click', (e) => {
   grid.setAttribute('columns-s', mobileCols);
   grid.classList.add('grid-container');
   grid.classList.add('debug'); // Add debug class to the grid for visualization
-  grid.classList.add('show-base-grid'); // Add show-base-grid class for baseline visualization
+  grid.classList.add('show-base-grid'); // Always keep baseline grid on
   
   // Add event listeners to the grid
   addGridEventListeners(grid);
@@ -382,13 +379,13 @@ exportBtn.addEventListener('click', (e) => {
   });
   
   // Add page-level color classes if they exist
-  if (window.pageStyles && window.pageStyles.backgroundColor) {
+  if (window.pageStyles && window.pageStyles.backgroundColor && window.pageStyles.backgroundColor !== "custom") {
     if (!colorClasses.includes(window.pageStyles.backgroundColor)) {
       colorClasses.push(window.pageStyles.backgroundColor);
     }
   }
   
-  if (window.pageStyles && window.pageStyles.textColor) {
+  if (window.pageStyles && window.pageStyles.textColor && window.pageStyles.textColor !== "custom") {
     if (!colorClasses.includes(window.pageStyles.textColor)) {
       colorClasses.push(window.pageStyles.textColor);
     }
@@ -396,7 +393,8 @@ exportBtn.addEventListener('click', (e) => {
   
   // Generate CSS for the used color classes
   let colorStyles = '';
-  if (colorClasses.length > 0) {
+  if (colorClasses.length > 0 || 
+      (window.pageStyles && (window.pageStyles.backgroundColor === "custom" || window.pageStyles.textColor === "custom"))) {
     colorStyles = '<style>\n';
     
     // Add color definitions
@@ -414,25 +412,254 @@ exportBtn.addEventListener('click', (e) => {
       }
     });
     
+    // Add custom colors if used
+    if (window.pageStyles && window.pageStyles.backgroundColor === "custom") {
+      colorStyles += `  body { background-color: ${window.pageStyles.customBgColor}; }\n`;
+    }
+    
+    if (window.pageStyles && window.pageStyles.textColor === "custom") {
+      colorStyles += `  body { color: ${window.pageStyles.customTextColor}; }\n`;
+    }
+    
     // Add min-height style for the body
     colorStyles += '  body { min-height: calc(100vh - 60px); }\n';
     
+    // Add custom element styles
+    colorStyles += '  [style*="color:"] { color: var(--custom-color, inherit); }\n';
+    colorStyles += '  [style*="background-color:"] { background-color: var(--custom-bg-color, inherit); }\n';
+    
+    // Add button styling
+    colorStyles += '  button {\n';
+    colorStyles += '    padding: 8px 16px;\n';
+    colorStyles += '    background-color: #000000;\n';
+    colorStyles += '    color: white;\n';
+    colorStyles += '    border: none;\n';
+    colorStyles += '    border-radius: 0px;\n';
+    colorStyles += '    cursor: pointer;\n';
+    colorStyles += '    font-size: 1rem;\n';
+    colorStyles += '    font-weight: 500;\n';
+    colorStyles += '  }\n';
+    
     colorStyles += '</style>\n';
   } else {
-    // If no color classes, still add the min-height style
-    colorStyles = '<style>\n  body { min-height: calc(100vh - 60px); }\n</style>\n';
+    // If no color classes, still add the min-height style and button styling
+    colorStyles = '<style>\n';
+    colorStyles += '  body { min-height: calc(100vh - 60px); }\n';
+    colorStyles += '  button {\n';
+    colorStyles += '    padding: 8px 16px;\n';
+    colorStyles += '    background-color: #000000;\n';
+    colorStyles += '    color: white;\n';
+    colorStyles += '    border: none;\n';
+    colorStyles += '    border-radius: 0px;\n';
+    colorStyles += '    cursor: pointer;\n';
+    colorStyles += '    font-size: 1rem;\n';
+    colorStyles += '    font-weight: 500;\n';
+    colorStyles += '  }\n';
+    colorStyles += '</style>\n';
+  }
+  
+  // Generate CSS for font size, font family, and container width
+  let fontAndContainerStyles = '';
+  if (window.pageStyles) {
+    fontAndContainerStyles = '<style>\n';
+    
+    // Font size
+    if (window.pageStyles.fontSize) {
+      const fontSize = window.pageStyles.fontSize.replace('font-size-', '');
+      let fontSizeValue = '12px'; // Default
+      
+      switch (fontSize) {
+        case 'small':
+          fontSizeValue = '10px';
+          break;
+        case 'medium':
+          fontSizeValue = '12px';
+          break;
+        case 'large':
+          fontSizeValue = '14px';
+          break;
+        case 'xlarge':
+          fontSizeValue = '16px';
+          break;
+      }
+      
+      fontAndContainerStyles += `  :root { --fontSize: ${fontSizeValue}; }\n`;
+    }
+    
+    // Heading font family
+    if (window.pageStyles.headingFont) {
+      const headingFont = window.pageStyles.headingFont.replace('heading-font-', '');
+      let headingFontValue = '"Inter", sans-serif'; // Default
+      
+      switch (headingFont) {
+        case 'inter':
+          headingFontValue = '"Inter", sans-serif';
+          break;
+        case 'lora':
+          headingFontValue = '"Lora", serif';
+          break;
+        case 'poppins':
+          headingFontValue = '"Poppins", sans-serif';
+          break;
+        case 'oswald':
+          headingFontValue = '"Oswald", sans-serif';
+          break;
+      }
+      
+      fontAndContainerStyles += `  h1, h2, h3, h4, h5, h6 { font-family: ${headingFontValue}; }\n`;
+    }
+    
+    // Heading font weight
+    if (window.pageStyles.headingWeight) {
+      const headingWeight = window.pageStyles.headingWeight.replace('heading-weight-', '');
+      let headingWeightValue = '700'; // Default
+      
+      switch (headingWeight) {
+        case 'light':
+          headingWeightValue = '300';
+          break;
+        case 'normal':
+          headingWeightValue = '400';
+          break;
+        case 'medium':
+          headingWeightValue = '500';
+          break;
+        case 'semib old':
+          headingWeightValue = '600';
+          break;
+        case 'bold':
+          headingWeightValue = '700';
+          break;
+      }
+      
+      fontAndContainerStyles += `  h1, h2, h3, h4, h5, h6 { font-weight: ${headingWeightValue}; }\n`;
+    }
+    
+    // Body font family
+    if (window.pageStyles.bodyFont) {
+      const bodyFont = window.pageStyles.bodyFont.replace('body-font-', '');
+      let bodyFontValue = '"Inter", sans-serif'; // Default
+      
+      switch (bodyFont) {
+        case 'inter':
+          bodyFontValue = '"Inter", sans-serif';
+          break;
+        case 'lora':
+          bodyFontValue = '"Lora", serif';
+          break;
+        case 'poppins':
+          bodyFontValue = '"Poppins", sans-serif';
+          break;
+        case 'oswald':
+          bodyFontValue = '"Oswald", sans-serif';
+          break;
+      }
+      
+      fontAndContainerStyles += `  body { font-family: ${bodyFontValue}; }\n`;
+    }
+    
+    // Body font weight
+    if (window.pageStyles.bodyWeight) {
+      const bodyWeight = window.pageStyles.bodyWeight.replace('body-weight-', '');
+      let bodyWeightValue = '400'; // Default
+      
+      switch (bodyWeight) {
+        case 'light':
+          bodyWeightValue = '300';
+          break;
+        case 'normal':
+          bodyWeightValue = '400';
+          break;
+        case 'medium':
+          bodyWeightValue = '500';
+          break;
+        case 'semibold':
+          bodyWeightValue = '600';
+          break;
+        case 'bold':
+          bodyWeightValue = '700';
+          break;
+      }
+      
+      fontAndContainerStyles += `  body { font-weight: ${bodyWeightValue}; }\n`;
+    }
+    
+    // Container width
+    if (window.pageStyles.containerWidth) {
+      const containerWidth = window.pageStyles.containerWidth.replace('container-', '');
+      let containerWidthValue = 'none'; // Default (fluid)
+      
+      switch (containerWidth) {
+        case 'fluid':
+          containerWidthValue = 'none';
+          break;
+        case 'xl':
+          containerWidthValue = '1200px';
+          break;
+        case 'lg':
+          containerWidthValue = '992px';
+          break;
+        case 'md':
+          containerWidthValue = '768px';
+          break;
+        case 'sm':
+          containerWidthValue = '576px';
+          break;
+      }
+      
+      if (containerWidthValue !== 'none') {
+        fontAndContainerStyles += `  body > * { max-width: ${containerWidthValue}; margin-left: auto; margin-right: auto; }\n`;
+      }
+    }
+    
+    fontAndContainerStyles += '</style>\n';
   }
   
   // Determine body classes for page-wide styling
   let bodyClasses = [];
-  if (window.pageStyles && window.pageStyles.backgroundColor) {
+  if (window.pageStyles && window.pageStyles.backgroundColor && window.pageStyles.backgroundColor !== "custom") {
     bodyClasses.push(window.pageStyles.backgroundColor);
   }
-  if (window.pageStyles && window.pageStyles.textColor) {
+  if (window.pageStyles && window.pageStyles.textColor && window.pageStyles.textColor !== "custom") {
     bodyClasses.push(window.pageStyles.textColor);
   }
   
   const bodyClassAttribute = bodyClasses.length > 0 ? ` class="${bodyClasses.join(' ')}"` : '';
+  
+  // Determine which Google Fonts to include
+  let googleFontsLinks = '';
+  if (window.pageStyles) {
+    const fontsToInclude = new Set();
+    
+    // Check heading font
+    if (window.pageStyles.headingFont && window.pageStyles.headingFont !== 'heading-font-inter') {
+      const fontName = window.pageStyles.headingFont.replace('heading-font-', '');
+      fontsToInclude.add(fontName);
+    }
+    
+    // Check body font
+    if (window.pageStyles.bodyFont && window.pageStyles.bodyFont !== 'body-font-inter') {
+      const fontName = window.pageStyles.bodyFont.replace('body-font-', '');
+      fontsToInclude.add(fontName);
+    }
+    
+    // Generate Google Fonts links
+    fontsToInclude.forEach(font => {
+      const formattedFont = font.charAt(0).toUpperCase() + font.slice(1);
+      googleFontsLinks += `  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${formattedFont}:wght@300;400;500;600;700&display=swap">\n`;
+    });
+  }
+  
+  // Process custom inline styles for elements
+  previewClone.querySelectorAll('*[style]').forEach(el => {
+    // Convert inline styles to custom properties for better handling in the exported CSS
+    if (el.style.color) {
+      el.setAttribute('style', `--custom-color: ${el.style.color};`);
+    }
+    if (el.style.backgroundColor) {
+      el.setAttribute('style', `--custom-bg-color: ${el.style.backgroundColor};`);
+    }
+  });
   
   const exportedHTML = `
 <!DOCTYPE html>
@@ -442,8 +669,8 @@ exportBtn.addEventListener('click', (e) => {
   <meta name=viewport content="width=device-width, initial-scale=1.0">
   <link rel=stylesheet href=https://rsms.me/inter/inter.css>
   <link rel=stylesheet href=https://rsms.me/res/fonts/iaw.css>
-  <link rel=stylesheet href=raster2.css>
-  ${colorStyles}
+${googleFontsLinks}  <link rel=stylesheet href=raster2.css>
+  ${colorStyles}${fontAndContainerStyles}
 </head>
 <body${bodyClassAttribute}>
   ${previewClone.innerHTML}
@@ -453,10 +680,6 @@ exportBtn.addEventListener('click', (e) => {
   
   // Create a downloadable file
   downloadFile('raster-layout.html', exportedHTML);
-  
-  // Also show the HTML in the textarea for reference
-  exportTextarea.style.display = 'block';
-  exportTextarea.value = exportedHTML;
 });
 
 // Helper function to get the color value for a class
@@ -497,13 +720,6 @@ function getColorForClass(className) {
     default: return null;
   }
 }
-
-// Toggle base grid visibility for all grids
-toggleBaseGridBtn.addEventListener('click', () => {
-  document.querySelectorAll('r-grid').forEach(grid => {
-    grid.classList.toggle('show-base-grid');
-  });
-});
 
 // Undo button click handler
 undoBtn.addEventListener('click', () => {

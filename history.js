@@ -190,6 +190,9 @@ function undoStyleElement(data) {
   if (element) {
     // Restore previous styles and content
     element.className = data.previousClasses;
+    if (data.previousStyle) {
+      element.style.cssText = data.previousStyle;
+    }
     if (element.tagName.toLowerCase() === 'img') {
       element.src = data.previousContent;
     } else {
@@ -203,6 +206,9 @@ function undoStyleCell(data) {
   if (cell) {
     // Restore previous styles
     cell.className = data.previousClasses;
+    if (data.previousStyle) {
+      cell.style.cssText = data.previousStyle;
+    }
   }
 }
 
@@ -210,33 +216,122 @@ function undoUpdatePageStyle(data) {
   // Restore previous page styles
   window.pageStyles.backgroundColor = data.previousBgColor;
   window.pageStyles.textColor = data.previousTextColor;
+  window.pageStyles.customBgColor = data.previousCustomBgColor;
+  window.pageStyles.customTextColor = data.previousCustomTextColor;
+  window.pageStyles.fontSize = data.previousFontSize;
+  window.pageStyles.headingFont = data.previousHeadingFont;
+  window.pageStyles.headingWeight = data.previousHeadingWeight;
+  window.pageStyles.bodyFont = data.previousBodyFont;
+  window.pageStyles.bodyWeight = data.previousBodyWeight;
+  window.pageStyles.containerWidth = data.previousContainerWidth;
   
   // Apply styles to the preview container
   const preview = document.getElementById("preview");
   
-  // Remove current background color classes
+  // Remove current background color classes and styles
   preview.classList.forEach(cls => {
     if (cls.startsWith("bg-")) {
       preview.classList.remove(cls);
     }
   });
+  preview.style.backgroundColor = '';
   
-  // Remove current text color classes
+  // Remove current text color classes and styles
   preview.classList.forEach(cls => {
     if (cls.startsWith("text-")) {
       preview.classList.remove(cls);
     }
   });
+  preview.style.color = '';
   
-  // Add previous background color class if it existed
-  if (data.previousBgColor) {
+  // Remove current font size classes
+  preview.classList.forEach(cls => {
+    if (cls.startsWith("font-size-")) {
+      preview.classList.remove(cls);
+    }
+  });
+  
+  // Remove current heading font classes
+  preview.classList.forEach(cls => {
+    if (cls.startsWith("heading-font-")) {
+      preview.classList.remove(cls);
+    }
+  });
+  
+  // Remove current heading weight classes
+  preview.classList.forEach(cls => {
+    if (cls.startsWith("heading-weight-")) {
+      preview.classList.remove(cls);
+    }
+  });
+  
+  // Remove current body font classes
+  preview.classList.forEach(cls => {
+    if (cls.startsWith("body-font-")) {
+      preview.classList.remove(cls);
+    }
+  });
+  
+  // Remove current body weight classes
+  preview.classList.forEach(cls => {
+    if (cls.startsWith("body-weight-")) {
+      preview.classList.remove(cls);
+    }
+  });
+  
+  // Remove current container width classes
+  preview.classList.forEach(cls => {
+    if (cls.startsWith("container-")) {
+      preview.classList.remove(cls);
+    }
+  });
+  
+  // Apply previous background color
+  if (data.previousBgColor === "custom") {
+    preview.style.backgroundColor = data.previousCustomBgColor || '';
+  } else if (data.previousBgColor) {
     preview.classList.add(data.previousBgColor);
   }
   
-  // Add previous text color class if it existed
-  if (data.previousTextColor) {
+  // Apply previous text color
+  if (data.previousTextColor === "custom") {
+    preview.style.color = data.previousCustomTextColor || '';
+  } else if (data.previousTextColor) {
     preview.classList.add(data.previousTextColor);
   }
+  
+  // Add previous font size class if it existed
+  if (data.previousFontSize) {
+    preview.classList.add(data.previousFontSize);
+  }
+  
+  // Add previous heading font class if it existed
+  if (data.previousHeadingFont) {
+    preview.classList.add(data.previousHeadingFont);
+  }
+  
+  // Add previous heading weight class if it existed
+  if (data.previousHeadingWeight) {
+    preview.classList.add(data.previousHeadingWeight);
+  }
+  
+  // Add previous body font class if it existed
+  if (data.previousBodyFont) {
+    preview.classList.add(data.previousBodyFont);
+  }
+  
+  // Add previous body weight class if it existed
+  if (data.previousBodyWeight) {
+    preview.classList.add(data.previousBodyWeight);
+  }
+  
+  // Add previous container width class if it existed
+  if (data.previousContainerWidth) {
+    preview.classList.add(data.previousContainerWidth);
+  }
+  
+  // Update Google Fonts
+  updateGoogleFonts();
 }
 
 // Generate a unique ID

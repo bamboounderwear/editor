@@ -13,6 +13,11 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Color swatches
   const bgColorSwatches = document.querySelectorAll("#bg-color-swatches .color-swatch");
+  
+  // Custom color elements
+  const customBgColorContainer = document.getElementById("custom-bg-color-container");
+  const customBgColorPicker = document.getElementById("custom-bg-color-picker");
+  const customBgColorHex = document.getElementById("custom-bg-color-hex");
 
   // Open the cell style modal when the button is clicked
   styleCellBtn.addEventListener("click", (e) => {
@@ -43,7 +48,46 @@ document.addEventListener("DOMContentLoaded", () => {
   bgColorSwatches.forEach(swatch => {
     swatch.addEventListener("click", () => {
       cellBgColorSelect.value = swatch.dataset.color;
+      customBgColorContainer.style.display = "none";
     });
+  });
+  
+  // Show/hide custom color inputs based on color selection
+  cellBgColorSelect.addEventListener("change", () => {
+    if (cellBgColorSelect.value === "custom") {
+      customBgColorContainer.style.display = "flex";
+    } else {
+      customBgColorContainer.style.display = "none";
+    }
+  });
+  
+  // Sync color picker with hex input
+  customBgColorPicker.addEventListener("input", () => {
+    customBgColorHex.value = customBgColorPicker.value;
+  });
+  
+  // Validate and sync hex input with color picker
+  customBgColorHex.addEventListener("input", () => {
+    const hexValue = customBgColorHex.value;
+    if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
+      customBgColorPicker.value = hexValue;
+    }
+  });
+  
+  // Ensure hex input has # prefix
+  customBgColorHex.addEventListener("blur", () => {
+    let hexValue = customBgColorHex.value;
+    if (hexValue.charAt(0) !== '#') {
+      hexValue = '#' + hexValue;
+    }
+    // Validate hex format
+    if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
+      customBgColorHex.value = hexValue;
+      customBgColorPicker.value = hexValue;
+    } else {
+      // Reset to color picker value if invalid
+      customBgColorHex.value = customBgColorPicker.value;
+    }
   });
 
   // Fill the cell style modal with the selected cell's current values
@@ -67,10 +111,36 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Check background color
     let bgColorClass = "";
+    customBgColorContainer.style.display = "none";
+    
+    // Check for predefined background color classes
+    let hasPresetColor = false;
     cell.classList.forEach(cls => {
-      if (cls.startsWith("bg-")) bgColorClass = cls;
+      if (cls.startsWith("bg-")) {
+        bgColorClass = cls;
+        hasPresetColor = true;
+      }
     });
     cellBgColorSelect.value = bgColorClass;
+    
+    // Check for custom inline background color
+    if (!hasPresetColor && cell.style.backgroundColor) {
+      cellBgColorSelect.value = "custom";
+      customBgColorContainer.style.display = "flex";
+      const colorValue = cell.style.backgroundColor;
+      // Convert RGB to HEX if needed
+      if (colorValue.startsWith("rgb")) {
+        const rgb = colorValue.match(/\d+/g);
+        if (rgb && rgb.length === 3) {
+          const hex = "#" + rgb.map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+          customBgColorPicker.value = hex;
+          customBgColorHex.value = hex;
+        }
+      } else {
+        customBgColorPicker.value = colorValue;
+        customBgColorHex.value = colorValue;
+      }
+    }
   }
 
   // Apply the selected styles to the cell
@@ -87,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Store previous state for undo
     const previousClasses = cell.className;
+    const previousStyle = cell.style.cssText;
     
     const heightVal = cellHeightSelect.value;
     const paddingVal = cellPaddingSelect.value;
@@ -116,13 +187,27 @@ document.addEventListener("DOMContentLoaded", () => {
         cell.classList.remove(cls);
       }
     });
-    if (bgColorVal) cell.classList.add(bgColorVal);
+    
+    // Clear any inline background color style
+    cell.style.backgroundColor = '';
+    
+    // Apply the selected background color
+    if (bgColorVal === "custom") {
+      // Apply custom color as inline style
+      const customColor = customBgColorHex.value;
+      cell.style.backgroundColor = customColor;
+    } else if (bgColorVal) {
+      // Apply predefined color class
+      cell.classList.add(bgColorVal);
+    }
     
     // Add to history
     window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.STYLE_CELL, {
       cellId: cell.getAttribute('data-id'),
       previousClasses: previousClasses,
-      newClasses: cell.className
+      previousStyle: previousStyle,
+      newClasses: cell.className,
+      newStyle: cell.style.cssText
     });
 
     cellStyleModal.style.display = "none";

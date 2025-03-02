@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const addH3Btn = document.getElementById("add-h3");
   const addPBtn = document.getElementById("add-p");
   const addImgBtn = document.getElementById("add-img");
+  const addButtonBtn = document.getElementById("add-button");
   const addListBtn = document.getElementById("add-list");
   const addTaskListBtn = document.getElementById("add-task-list");
   const addDividerBtn = document.getElementById("add-divider");
@@ -67,6 +68,18 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (tagName.toLowerCase() !== "img") {
       el.textContent = defaultText;
+      
+      // Add special styling for buttons
+      if (tagName.toLowerCase() === "button") {
+        el.style.padding = "8px 16px";
+        el.style.backgroundColor = "#000000";
+        el.style.color = "white";
+        el.style.border = "none";
+        el.style.borderRadius = "0px";
+        el.style.cursor = "pointer";
+        el.style.fontSize = "1rem";
+        el.style.fontWeight = "500";
+      }
     } else {
       el.src = defaultText;
       el.style.maxWidth = "100%";
@@ -96,19 +109,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add H1
   addH1Btn.addEventListener("click", () => {
-    addEditableElement("h1", "Heading 1");
+    addEditableElement("h1", "San Francisco Bubblegum");
   });
   // Add H2
   addH2Btn.addEventListener("click", () => {
-    addEditableElement("h2", "Heading 2");
+    addEditableElement("h2", "Don Draper's Ideas");
   });
   // Add H3
   addH3Btn.addEventListener("click", () => {
-    addEditableElement("h3", "Heading 3");
+    addEditableElement("h3", "VHS Nights & Blockbusters Movies");
   });
   // Add Paragraph
   addPBtn.addEventListener("click", () => {
-    addEditableElement("p", "Your paragraph text here...");
+    addEditableElement("p", "Glittering confetti danced across the neon sky as a mysterious carnival barker shouted about the wonders of bubblegum-scented fireworks. Meanwhile, an old VHS tape lurked in the dusty corner of a retro arcade.");
+  });
+  // Add Button
+  addButtonBtn.addEventListener("click", () => {
+    addEditableElement("button", "Click me");
   });
   // Add Image
   addImgBtn.addEventListener("click", () => {

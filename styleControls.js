@@ -17,6 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Color swatches
   const textColorSwatches = document.querySelectorAll("#text-color-swatches .color-swatch");
+  
+  // Custom color elements
+  const customTextColorContainer = document.getElementById("custom-text-color-container");
+  const customTextColorPicker = document.getElementById("custom-text-color-picker");
+  const customTextColorHex = document.getElementById("custom-text-color-hex");
 
   // Open the style modal when the button is clicked
   openStyleModalBtn.addEventListener("click", (e) => {
@@ -51,7 +56,46 @@ document.addEventListener("DOMContentLoaded", () => {
   textColorSwatches.forEach(swatch => {
     swatch.addEventListener("click", () => {
       textColorSelect.value = swatch.dataset.color;
+      customTextColorContainer.style.display = "none";
     });
+  });
+  
+  // Show/hide custom color inputs based on color selection
+  textColorSelect.addEventListener("change", () => {
+    if (textColorSelect.value === "custom") {
+      customTextColorContainer.style.display = "flex";
+    } else {
+      customTextColorContainer.style.display = "none";
+    }
+  });
+  
+  // Sync color picker with hex input
+  customTextColorPicker.addEventListener("input", () => {
+    customTextColorHex.value = customTextColorPicker.value;
+  });
+  
+  // Validate and sync hex input with color picker
+  customTextColorHex.addEventListener("input", () => {
+    const hexValue = customTextColorHex.value;
+    if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
+      customTextColorPicker.value = hexValue;
+    }
+  });
+  
+  // Ensure hex input has # prefix
+  customTextColorHex.addEventListener("blur", () => {
+    let hexValue = customTextColorHex.value;
+    if (hexValue.charAt(0) !== '#') {
+      hexValue = '#' + hexValue;
+    }
+    // Validate hex format
+    if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
+      customTextColorHex.value = hexValue;
+      customTextColorPicker.value = hexValue;
+    } else {
+      // Reset to color picker value if invalid
+      customTextColorHex.value = customTextColorPicker.value;
+    }
   });
 
   // Fill the style modal with the selected element's current values
@@ -63,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     const tag = el.tagName.toLowerCase();
-    if (["h1", "h2", "h3", "p", "small", "xsmall"].includes(tag)) {
+    if (["h1", "h2", "h3", "p", "button", "small", "xsmall"].includes(tag)) {
       typographySelect.value = tag;
     } else {
       typographySelect.value = "";
@@ -89,9 +133,35 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Check text color
     textColorSelect.value = "";
+    customTextColorContainer.style.display = "none";
+    
+    // Check for predefined text color classes
+    let hasPresetColor = false;
     el.classList.forEach(cls => {
-      if (cls.startsWith("text-")) textColorSelect.value = cls;
+      if (cls.startsWith("text-")) {
+        textColorSelect.value = cls;
+        hasPresetColor = true;
+      }
     });
+    
+    // Check for custom inline color
+    if (!hasPresetColor && el.style.color) {
+      textColorSelect.value = "custom";
+      customTextColorContainer.style.display = "flex";
+      const colorValue = el.style.color;
+      // Convert RGB to HEX if needed
+      if (colorValue.startsWith("rgb")) {
+        const rgb = colorValue.match(/\d+/g);
+        if (rgb && rgb.length === 3) {
+          const hex = "#" + rgb.map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+          customTextColorPicker.value = hex;
+          customTextColorHex.value = hex;
+        }
+      } else {
+        customTextColorPicker.value = colorValue;
+        customTextColorHex.value = colorValue;
+      }
+    }
 
     // Check margin and padding
     marginSelect.value = "";
@@ -115,6 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Store previous state for undo
     const previousContent = el.tagName.toLowerCase() === "img" ? el.src : el.textContent;
     const previousClasses = el.className;
+    const previousStyle = el.style.cssText;
     
     const contentVal = contentInput.value;
     const typographyVal = typographySelect.value;
@@ -140,6 +211,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typographyVal === "img") {
         newEl.src = contentVal;
         newEl.style.maxWidth = "100%";
+      } else if (typographyVal === "button") {
+        newEl.textContent = contentVal;
+        newEl.style.padding = "8px 16px";
+        newEl.style.backgroundColor = "#000000";
+        newEl.style.color = "white";
+        newEl.style.border = "none";
+        newEl.style.borderRadius = "4px";
+        newEl.style.cursor = "pointer";
+        newEl.style.fontSize = "1rem";
+        newEl.style.fontWeight = "500";
       } else {
         newEl.textContent = contentVal;
       }
@@ -160,8 +241,10 @@ document.addEventListener("DOMContentLoaded", () => {
         previousElementId: el.getAttribute('data-id'),
         previousContent: previousContent,
         previousClasses: previousClasses,
+        previousStyle: previousStyle,
         newContent: contentVal,
-        newClasses: newEl.className
+        newClasses: newEl.className,
+        newStyle: newEl.style.cssText
       });
     } else {
       // Update size classes (only for h1)
@@ -184,7 +267,17 @@ document.addEventListener("DOMContentLoaded", () => {
           window.selectedElement.classList.remove(cls);
         }
       });
-      if (textColorVal) {
+      
+      // Clear any inline color style
+      window.selectedElement.style.color = '';
+      
+      // Apply the selected color
+      if (textColorVal === "custom") {
+        // Apply custom color as inline style
+        const customColor = customTextColorHex.value;
+        window.selectedElement.style.color = customColor;
+      } else if (textColorVal) {
+        // Apply predefined color class
         window.selectedElement.classList.add(textColorVal);
       }
       
@@ -202,8 +295,10 @@ document.addEventListener("DOMContentLoaded", () => {
         elementId: window.selectedElement.getAttribute('data-id'),
         previousContent: previousContent,
         previousClasses: previousClasses,
+        previousStyle: previousStyle,
         newContent: contentVal,
-        newClasses: window.selectedElement.className
+        newClasses: window.selectedElement.className,
+        newStyle: window.selectedElement.style.cssText
       });
     }
 
