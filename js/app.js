@@ -5,27 +5,39 @@ document.addEventListener('DOMContentLoaded', function() {
   const dropdownBtn = document.getElementById('create-grid-btn');
   const dropdownContent = document.getElementById('create-grid-content');
   
-  dropdownBtn.addEventListener('click', function() {
-    dropdownContent.classList.toggle('show');
-    dropdownBtn.classList.toggle('active');
-  });
-  
-  // Close dropdown when clicking outside
-  document.addEventListener('click', function(event) {
-    if (!event.target.closest('.dropdown') && dropdownContent.classList.contains('show')) {
-      dropdownContent.classList.remove('show');
-      dropdownBtn.classList.remove('active');
-    }
-  });
-  
-  // Prevent dropdown from closing when clicking inside it
-  dropdownContent.addEventListener('click', function(event) {
-    event.stopPropagation();
-  });
+  if (dropdownBtn && dropdownContent) {
+    dropdownBtn.addEventListener('click', function() {
+      dropdownContent.classList.toggle('show');
+      dropdownBtn.classList.toggle('active');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.dropdown') && dropdownContent.classList.contains('show')) {
+        dropdownContent.classList.remove('show');
+        dropdownBtn.classList.remove('active');
+      }
+    });
+    
+    // Prevent dropdown from closing when clicking inside it
+    dropdownContent.addEventListener('click', function(event) {
+      event.stopPropagation();
+    });
+  }
 
   // Initialize undo button
   const undoBtn = document.getElementById('undo-button');
   undoBtn.addEventListener('click', () => {
     window.historyManager.undo();
   });
-});
+  
+  // Initialize reorder toggle
+  const reorderToggle = document.getElementById('reorder-toggle-checkbox');
+  reorderToggle.addEventListener('change', () => {
+    window.reorderEnabled = reorderToggle.checked;
+    
+    // If reordering is
+  }
+  )
+}
+)

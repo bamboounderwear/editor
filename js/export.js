@@ -1,5 +1,42 @@
-document.addEventListener('click', function(event) {
-  // Clean up all elements
+// export.js - Handles exporting the layout to HTML
+
+document.addEventListener("DOMContentLoaded", () => {
+  const exportBtn = document.getElementById('export');
+
+  // Helper function to create a downloadable file
+  function downloadFile(filename, content) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/html;charset=utf-8,' + encodeURIComponent(content));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+
+  // Export functionality: clone the preview, clean it up, and generate clean HTML
+  exportBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const preview = document.getElementById('preview');
+    const previewClone = preview.cloneNode(true);
+    
+    // Remove any placeholder paragraphs from each grid
+    previewClone.querySelectorAll('r-grid').forEach(grid => {
+      grid.querySelectorAll('p').forEach(p => {
+        if (p.textContent.includes("Click grid to select")) {
+          p.remove();
+        }
+      });
+      
+      // Clean up grid for export
+      cleanupGrid(grid);
+    });
+    
+    // Remove the header (e.g. "Page Preview") from the clone
+    const header = previewClone.querySelector('h2');
+    if (header) header.remove();
+    
+    // Clean up all elements
     previewClone.querySelectorAll('.editable-element').forEach(el => {
       cleanupElement(el);
     });
@@ -82,6 +119,12 @@ ${googleFontsLinks}  <link rel=stylesheet href=raster2.css>
     grid.classList.remove('grid-container');
     grid.classList.remove('show-base-grid');
     grid.removeAttribute('data-id');
+    
+    // Remove grid movement controls
+    const controls = grid.querySelector('.grid-movement-controls');
+    if (controls) {
+      controls.remove();
+    }
   }
 
   // Clean up a cell for export
@@ -431,3 +474,4 @@ ${googleFontsLinks}  <link rel=stylesheet href=raster2.css>
     
     return googleFontsLinks;
   }
+});

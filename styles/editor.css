@@ -64,12 +64,85 @@ r-grid.debug > *[class*="padding"] {
 .editable-element {
   margin: 8px;
   transition: outline 0.2s ease;
+  position: relative;
 }
 .editable-element:hover {
   outline: 2px dashed rgba(24,113,233,0.5);
 }
 .editable-element.selected-element {
   outline: 2px dashed #1871e9;
+}
+
+/* Movement controls for elements */
+.movement-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.editable-element:hover .movement-controls,
+.editable-element.selected-element .movement-controls {
+  opacity: 1;
+}
+
+.movement-controls button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.movement-controls button:hover {
+  background-color: #f0f0f0;
+}
+
+/* Grid movement controls */
+.grid-movement-controls {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+r-grid:hover .grid-movement-controls,
+r-grid.selected .grid-movement-controls {
+  opacity: 1;
+}
+
+.grid-movement-controls button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0 2px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-movement-controls button:hover {
+  background-color: #f0f0f0;
 }
 
 /* Modal popup for styling */
@@ -386,119 +459,6 @@ button.editable-element {
   /* max-width: 576px; - Only applied in export */
 }
 
-/* Page style button */
-#open-page-style-modal {
-  display: block;
-  width: 100%;
-  padding: 12px 15px;
-  margin: 15px 0;
-  background-color: transparent;
-  color: #000;
-  border: 2px solid #000;
-  font-weight: 600;
-  font-size: 1rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-#open-page-style-modal:hover {
-  background-color: #000;
-  color: #fff;
-}
-
-/* Section styling */
-.sidebar section {
-  margin-bottom: 15px;
-}
-
-.sidebar hr {
-  margin: 10px 0;
-  border: none;
-  border-top: 1px solid #eee;
-}
-
-/* Grid inputs */
-.grid-inputs {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 5px;
-}
-
-.grid-inputs label {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0;
-}
-
-.grid-inputs input {
-  width: 40px;
-  padding: 3px;
-  margin-left: 5px;
-}
-
-/* Dropdown button */
-.dropdown {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.dropdown-btn {
-  width: 100%;
-  padding: 8px 12px;
-  background-color: #000;
-  color: white !important;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-}
-
-.dropdown-btn:after {
-  content: "▼";
-  font-size: 0.7rem;
-  margin-left: 5px;
-}
-
-.dropdown-btn.active:after {
-  content: "▲";
-}
-
-.dropdown-content {
-  display: none;
-  background-color: #f9f9f9;
-  padding: 10px;
-  border: 1px solid #ddd;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 2px;
-}
-
-.dropdown-content.show {
-  display: block;
-}
-
-@media only screen and (max-width:600px) {
-  .only-large-window {
-    display: none;
-  }
-}
-
-@media only screen and (min-width:601px) {
-  .only-small-window {
-    display: none;
-  }
-}
-
-/* Override font size for preview area */
-.preview r-grid {
-  font-size: var(--fontSize, 12px);
-}
-
 /* Text alignment utilities */
 .text-left {
   text-align: left;
@@ -523,4 +483,113 @@ button.editable-element {
 
 .align-bottom {
   align-self: end;
+}
+
+/* Toggle for reordering */
+.reorder-toggle {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.reorder-toggle label {
+  margin-right: 10px;
+  font-size: 0.85rem;
+}
+
+.reorder-toggle input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Grid inputs styling */
+.grid-inputs {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.grid-inputs label {
+  margin-bottom: 8px;
+}
+
+/* Image wrapper styling */
+.img-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.img-wrapper img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Make sure movement controls are visible on image wrappers */
+.img-wrapper .movement-controls {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 3px;
+  padding: 2px;
+  z-index: 100;
+}
+
+.img-wrapper:hover .movement-controls,
+.img-wrapper.selected-element .movement-controls {
+  opacity: 1;
+}
+
+/* Dropdown styling */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.dropdown-btn {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 0px;
+  color: #333;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-btn::after {
+  content: "▼";
+  font-size: 0.7rem;
+  margin-left: 8px;
+}
+
+.dropdown-btn.active {
+  background-color: #e9ecef;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 100%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-top: none;
+  box-sizing: border-box;
+}
+
+.dropdown-content.show {
+  display: block;
+}
+
+.dropdown-content button {
+  width: 100%;
+  margin-top: 10px;
 }

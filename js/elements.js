@@ -62,6 +62,53 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     
+    // Special handling for images
+    if (tagName.toLowerCase() === "img") {
+      // Create a wrapper div for the image
+      const wrapper = document.createElement('div');
+      const wrapperId = window.historyManager.generateUniqueId();
+      wrapper.setAttribute('data-id', wrapperId);
+      wrapper.className = 'img-wrapper editable-element';
+      wrapper.style.position = 'relative';
+      wrapper.style.display = 'inline-block';
+      wrapper.style.maxWidth = '100%';
+      
+      // Create the image element
+      const img = document.createElement('img');
+      img.src = defaultText;
+      img.style.maxWidth = '100%';
+      
+      // Add the image to the wrapper
+      wrapper.appendChild(img);
+      
+      // Add event listeners to the wrapper
+      addElementEventListeners(wrapper);
+      
+      // Remove the temporary padding from the cell when adding an element
+      if (targetCell.style.padding === '10px') {
+        targetCell.style.padding = '';
+      }
+      
+      // Add the wrapper to the cell
+      targetCell.appendChild(wrapper);
+      
+      // Add to history
+      window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.ADD_ELEMENT, {
+        elementId: wrapperId,
+        cellId: targetCell.getAttribute('data-id'),
+        tagName: 'div', // We're adding a wrapper div
+        content: '<img src="' + defaultText + '" style="max-width:100%;">'
+      });
+      
+      // Add movement controls if reordering is enabled
+      if (window.reorderEnabled && window.reorderUtils) {
+        window.reorderUtils.addMovementControls(wrapper);
+      }
+      
+      return wrapper;
+    }
+    
+    // For non-image elements
     const el = document.createElement(tagName);
     const elementId = window.historyManager.generateUniqueId();
     el.setAttribute('data-id', elementId);
@@ -103,6 +150,11 @@ document.addEventListener("DOMContentLoaded", () => {
       tagName: tagName,
       content: defaultText
     });
+    
+    // Add movement controls if reordering is enabled
+    if (window.reorderEnabled && window.reorderUtils) {
+      window.reorderUtils.addMovementControls(el);
+    }
     
     return el;
   }
@@ -174,6 +226,11 @@ document.addEventListener("DOMContentLoaded", () => {
       tagName: "ul",
       content: ul.innerHTML
     });
+    
+    // Add movement controls if reordering is enabled
+    if (window.reorderEnabled && window.reorderUtils) {
+      window.reorderUtils.addMovementControls(ul);
+    }
   });
   
   // Add Task List
@@ -224,6 +281,11 @@ document.addEventListener("DOMContentLoaded", () => {
       tagName: "ul",
       content: ul.innerHTML
     });
+    
+    // Add movement controls if reordering is enabled
+    if (window.reorderEnabled && window.reorderUtils) {
+      window.reorderUtils.addMovementControls(ul);
+    }
   });
   
   // Add Divider (HR)
@@ -259,6 +321,11 @@ document.addEventListener("DOMContentLoaded", () => {
       tagName: "hr",
       content: ""
     });
+    
+    // Add movement controls if reordering is enabled
+    if (window.reorderEnabled && window.reorderUtils) {
+      window.reorderUtils.addMovementControls(hr);
+    }
   });
   
   // Add Monospace Text
@@ -297,6 +364,11 @@ document.addEventListener("DOMContentLoaded", () => {
       tagName: "pre",
       content: pre.innerHTML
     });
+    
+    // Add movement controls if reordering is enabled
+    if (window.reorderEnabled && window.reorderUtils) {
+      window.reorderUtils.addMovementControls(pre);
+    }
   });
   
   // Delete the selected element
