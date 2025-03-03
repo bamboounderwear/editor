@@ -50,11 +50,11 @@ r-grid.debug > *[class*="padding"] {
 
 /* Explicitly apply padding classes in the editor */
 .padding0 { padding: 0 !important; }
-.padding1 { padding: calc(var(--lineHeight)*1) !important; }
-.padding2 { padding: calc(var(--lineHeight)*2) !important; }
-.padding3 { padding: calc(var(--lineHeight)*3) !important; }
-.padding4 { padding: calc(var(--lineHeight)*4) !important; }
-.padding5 { padding: calc(var(--lineHeight)*5) !important; }
+.padding1 { padding: var(--space-s) !important; }
+.padding2 { padding: var(--space-m) !important; }
+.padding3 { padding: var(--space-l) !important; }
+.padding4 { padding: var(--space-xl) !important; }
+.padding5 { padding: var(--space-2xl) !important; }
 
 .selected {
   outline: 2px solid #1871e9; /* highlight a selected grid/cell */
@@ -304,10 +304,10 @@ button.editable-element {
 }
 
 /* Font size utilities */
-.font-size-small { --fontSize: 10px !important; }
-.font-size-medium { --fontSize: 12px !important; }
-.font-size-large { --fontSize: 14px !important; }
-.font-size-xlarge { --fontSize: 16px !important; }
+.font-size-small { --fontSize: var(--step--1) !important; }
+.font-size-medium { --fontSize: var(--step-0) !important; }
+.font-size-large { --fontSize: var(--step-1) !important; }
+.font-size-xlarge { --fontSize: var(--step-2) !important; }
 
 /* Font family utilities */
 .heading-font-inter h1, .heading-font-inter h2, .heading-font-inter h3, .heading-font-inter h4, .heading-font-inter h5, .heading-font-inter h6 {

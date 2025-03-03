@@ -1,7 +1,79 @@
 /* utilities.css */
 
-/* cell content alignment utilities */
+/* Fluid typography utilities */
+.text-step--2 { font-size: var(--step--2); }
+.text-step--1 { font-size: var(--step--1); }
+.text-step-0 { font-size: var(--step-0); }
+.text-step-1 { font-size: var(--step-1); }
+.text-step-2 { font-size: var(--step-2); }
+.text-step-3 { font-size: var(--step-3); }
+.text-step-4 { font-size: var(--step-4); }
+.text-step-5 { font-size: var(--step-5); }
 
+/* Fluid spacing utilities */
+.space-3xs { padding: var(--space-3xs); }
+.space-2xs { padding: var(--space-2xs); }
+.space-xs { padding: var(--space-xs); }
+.space-s { padding: var(--space-s); }
+.space-m { padding: var(--space-m); }
+.space-l { padding: var(--space-l); }
+.space-xl { padding: var(--space-xl); }
+.space-2xl { padding: var(--space-2xl); }
+.space-3xl { padding: var(--space-3xl); }
+
+/* Margin space utilities */
+.margin-3xs { margin: var(--space-3xs); }
+.margin-2xs { margin: var(--space-2xs); }
+.margin-xs { margin: var(--space-xs); }
+.margin-s { margin: var(--space-s); }
+.margin-m { margin: var(--space-m); }
+.margin-l { margin: var(--space-l); }
+.margin-xl { margin: var(--space-xl); }
+.margin-2xl { margin: var(--space-2xl); }
+.margin-3xl { margin: var(--space-3xl); }
+
+/* One-directional spacing utilities */
+.mt-3xs { margin-top: var(--space-3xs); }
+.mt-2xs { margin-top: var(--space-2xs); }
+.mt-xs { margin-top: var(--space-xs); }
+.mt-s { margin-top: var(--space-s); }
+.mt-m { margin-top: var(--space-m); }
+.mt-l { margin-top: var(--space-l); }
+.mt-xl { margin-top: var(--space-xl); }
+.mt-2xl { margin-top: var(--space-2xl); }
+.mt-3xl { margin-top: var(--space-3xl); }
+
+.mb-3xs { margin-bottom: var(--space-3xs); }
+.mb-2xs { margin-bottom: var(--space-2xs); }
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-s { margin-bottom: var(--space-s); }
+.mb-m { margin-bottom: var(--space-m); }
+.mb-l { margin-bottom: var(--space-l); }
+.mb-xl { margin-bottom: var(--space-xl); }
+.mb-2xl { margin-bottom: var(--space-2xl); }
+.mb-3xl { margin-bottom: var(--space-3xl); }
+
+.pt-3xs { padding-top: var(--space-3xs); }
+.pt-2xs { padding-top: var(--space-2xs); }
+.pt-xs { padding-top: var(--space-xs); }
+.pt-s { padding-top: var(--space-s); }
+.pt-m { padding-top: var(--space-m); }
+.pt-l { padding-top: var(--space-l); }
+.pt-xl { padding-top: var(--space-xl); }
+.pt-2xl { padding-top: var(--space-2xl); }
+.pt-3xl { padding-top: var(--space-3xl); }
+
+.pb-3xs { padding-bottom: var(--space-3xs); }
+.pb-2xs { padding-bottom: var(--space-2xs); }
+.pb-xs { padding-bottom: var(--space-xs); }
+.pb-s { padding-bottom: var(--space-s); }
+.pb-m { padding-bottom: var(--space-m); }
+.pb-l { padding-bottom: var(--space-l); }
+.pb-xl { padding-bottom: var(--space-xl); }
+.pb-2xl { padding-bottom: var(--space-2xl); }
+.pb-3xl { padding-bottom: var(--space-3xl); }
+
+/* cell content alignment utilities */
 .align-top {
   align-self: start;
 }
@@ -25,4 +97,33 @@
 
 .text-right {
   text-align: right;
+}
+
+/* Fluid line height utilities */
+.leading-tight { line-height: 1.1; }
+.leading-snug { line-height: 1.2; }
+.leading-normal { line-height: 1.5; }
+.leading-relaxed { line-height: 1.625; }
+.leading-loose { line-height: 2; }
+
+/* Fluid font weight utilities */
+.font-light { font-weight: 300; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* Responsive display utilities */
+.hidden-s {
+  display: none;
+}
+
+@media only screen and (min-width: 600px) {
+  .hidden-s {
+    display: initial;
+  }
+  
+  .hidden-l {
+    display: none;
+  }
 }
