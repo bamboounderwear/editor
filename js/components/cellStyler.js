@@ -1,4 +1,4 @@
-// cellStyles.js
+// cellStyler.js - Handles cell styling functionality
 
 document.addEventListener("DOMContentLoaded", () => {
   // Get references to the cell style modal elements
@@ -82,14 +82,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (hexValue.charAt(0) !== '#') {
       hexValue = '#' + hexValue;
     }
-    // Validate hex format
-    if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
-      customBgColorHex.value = hexValue;
-      customBgColorPicker.value = hexValue;
-    } else {
-      // Reset to color picker value if invalid
-      customBgColorHex.value = customBgColorPicker.value;
-    }
+    
+    // Use the utility function to validate hex color
+    customBgColorHex.value = window.colorUtils.validateHexColor(hexValue, customBgColorPicker.value);
+    customBgColorPicker.value = customBgColorHex.value;
   });
 
   // Fill the cell style modal with the selected cell's current values
@@ -144,18 +140,11 @@ document.addEventListener("DOMContentLoaded", () => {
       cellBgColorSelect.value = "custom";
       customBgColorContainer.style.display = "flex";
       const colorValue = cell.style.backgroundColor;
-      // Convert RGB to HEX if needed
-      if (colorValue.startsWith("rgb")) {
-        const rgb = colorValue.match(/\d+/g);
-        if (rgb && rgb.length === 3) {
-          const hex = "#" + rgb.map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
-          customBgColorPicker.value = hex;
-          customBgColorHex.value = hex;
-        }
-      } else {
-        customBgColorPicker.value = colorValue;
-        customBgColorHex.value = colorValue;
-      }
+      
+      // Convert RGB to HEX if needed using the utility function
+      const hexColor = window.colorUtils.rgbToHex(colorValue);
+      customBgColorPicker.value = hexColor;
+      customBgColorHex.value = hexColor;
     }
   }
 
@@ -181,54 +170,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const textAlignVal = cellTextAlignSelect.value;
     const bgColorVal = cellBgColorSelect.value;
 
-    // Remove existing height classes
-    for (let i = 1; i <= 40; i++) {
-      cell.classList.remove(`h-${i}`);
-    }
+    // Use utility functions to apply styles
+    window.styleUtils.applyCellHeight(cell, heightVal);
+    window.styleUtils.applySpacing(cell, null, paddingVal);
+    window.styleUtils.applyCellContentAlignment(cell, contentAlignVal);
+    window.styleUtils.applyCellTextAlignment(cell, textAlignVal);
+    window.styleUtils.applyBackgroundColor(cell, bgColorVal);
     
-    // Add new height class if selected
-    if (heightVal) {
-      cell.classList.add(heightVal);
-    }
-    
-    // Update padding
-    cell.classList.forEach(cls => {
-      if (cls.startsWith("padding")) {
-        cell.classList.remove(cls);
-      }
-    });
-    if (paddingVal) cell.classList.add(paddingVal);
-    
-    // Update content alignment (vertical)
-    cell.classList.remove("align-top", "align-middle", "align-bottom");
-    if (contentAlignVal) {
-      cell.classList.add(contentAlignVal);
-    }
-    
-    // Update text alignment (horizontal)
-    cell.classList.remove("text-left", "text-center", "text-right");
-    if (textAlignVal) {
-      cell.classList.add(textAlignVal);
-    }
-    
-    // Update background color
-    cell.classList.forEach(cls => {
-      if (cls.startsWith("bg-")) {
-        cell.classList.remove(cls);
-      }
-    });
-    
-    // Clear any inline background color style
-    cell.style.backgroundColor = '';
-    
-    // Apply the selected background color
+    // Apply custom background color if selected
     if (bgColorVal === "custom") {
-      // Apply custom color as inline style
-      const customColor = customBgColorHex.value;
-      cell.style.backgroundColor = customColor;
-    } else if (bgColorVal) {
-      // Apply predefined color class
-      cell.classList.add(bgColorVal);
+      cell.style.backgroundColor = customBgColorHex.value;
     }
     
     // Add to history

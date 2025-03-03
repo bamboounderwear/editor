@@ -103,7 +103,7 @@ function undoAddGrid(data) {
   const grid = document.querySelector(`r-grid[data-id="${data.gridId}"]`);
   if (grid) {
     grid.remove();
-    clearGridSelection();
+    window.gridUtils.clearGridSelection();
   }
 }
 
@@ -117,7 +117,7 @@ function undoDeleteGrid(data) {
   const grid = temp.firstChild;
   
   // Add event listeners to the restored grid
-  addGridEventListeners(grid);
+  window.gridUtils.addGridEventListeners(grid);
   
   // Add the grid back to the preview
   preview.appendChild(grid);
@@ -127,7 +127,7 @@ function undoAddCell(data) {
   const cell = document.querySelector(`r-cell[data-id="${data.cellId}"]`);
   if (cell) {
     cell.remove();
-    clearCellSelection();
+    window.gridUtils.clearCellSelection();
   }
 }
 
@@ -142,7 +142,7 @@ function undoDeleteCell(data) {
     const cell = temp.firstChild;
     
     // Add event listeners to the restored cell
-    addCellEventListeners(cell);
+    window.gridUtils.addCellEventListeners(cell);
     
     // Add the cell back to the grid
     grid.appendChild(cell);
@@ -178,7 +178,7 @@ function undoDeleteElement(data) {
     const element = temp.firstChild;
     
     // Add event listeners to the restored element
-    addElementEventListeners(element);
+    window.domUtils.addElementEventListeners(element);
     
     // Add the element back to the cell
     cell.appendChild(element);
@@ -228,63 +228,45 @@ function undoUpdatePageStyle(data) {
   // Apply styles to the preview container
   const preview = document.getElementById("preview");
   
-  // Remove current background color classes and styles
-  preview.classList.forEach(cls => {
-    if (cls.startsWith("bg-")) {
-      preview.classList.remove(cls);
-    }
-  });
-  preview.style.backgroundColor = '';
-  
-  // Remove current text color classes and styles
-  preview.classList.forEach(cls => {
-    if (cls.startsWith("text-")) {
-      preview.classList.remove(cls);
-    }
-  });
-  preview.style.color = '';
-  
-  // Remove current font size classes
-  preview.classList.forEach(cls => {
-    if (cls.startsWith("font-size-")) {
-      preview.classList.remove(cls);
-    }
-  });
-  
-  // Remove current heading font classes
-  preview.classList.forEach(cls => {
-    if (cls.startsWith("heading-font-")) {
-      preview.classList.remove(cls);
-    }
-  });
-  
-  // Remove current heading weight classes
-  preview.classList.forEach(cls => {
-    if (cls.startsWith("heading-weight-")) {
-      preview.classList.remove(cls);
-    }
-  });
-  
-  // Remove current body font classes
-  preview.classList.forEach(cls => {
-    if (cls.startsWith("body-font-")) {
-      preview.classList.remove(cls);
-    }
-  });
-  
-  // Remove current body weight classes
-  preview.classList.forEach(cls => {
-    if (cls.startsWith("body-weight-")) {
-      preview.classList.remove(cls);
-    }
-  });
-  
-  // Remove current container width classes
-  preview.classList.forEach(cls => {
-    if (cls.startsWith("container-")) {
-      preview.classList.remove(cls);
-    }
-  });
+  // Remove current styles
+  if (window.pageStylerUtils) {
+    window.pageStylerUtils.removePageStyleClasses(preview);
+  } else {
+    // Fallback if pageStylerUtils is not available
+    // Remove background color classes and styles
+    preview.classList.forEach(cls => {
+      if (cls.startsWith("bg-")) {
+        preview.classList.remove(cls);
+      }
+    });
+    preview.style.backgroundColor = '';
+    
+    // Remove text color classes and styles
+    preview.classList.forEach(cls => {
+      if (cls.startsWith("text-")) {
+        preview.classList.remove(cls);
+      }
+    });
+    preview.style.color = '';
+    
+    // Remove font size classes
+    preview.classList.forEach(cls => {
+      if (cls.startsWith("font-size-")) {
+        preview.classList.remove(cls);
+      }
+    });
+    
+    // Remove font family classes
+    preview.classList.forEach(cls => {
+      if (cls.startsWith("heading-font-") || 
+          cls.startsWith("heading-weight-") || 
+          cls.startsWith("body-font-") || 
+          cls.startsWith("body-weight-") || 
+          cls.startsWith("container-")) {
+        preview.classList.remove(cls);
+      }
+    });
+  }
   
   // Apply previous background color
   if (data.previousBgColor === "custom") {
@@ -304,34 +286,57 @@ function undoUpdatePageStyle(data) {
   if (data.previousFontSize) {
     preview.classList.add(data.previousFontSize);
     
-    // Apply the actual font size to the preview element
-    const fontSize = data.previousFontSize.replace('font-size-', '');
-    let fontSizeValue = '12px'; // Default
-    
-    switch (fontSize) {
-      case 'small':
-        fontSizeValue = '10px';
-        break;
-      case 'medium':
-        fontSizeValue = '12px';
-        break;
-      case 'large':
-        fontSizeValue = '14px';
-        break;
-      case 'xlarge':
-        fontSizeValue = '16px';
-        break;
+    if (window.pageStylerUtils) {
+      window.pageStylerUtils.applyFontSizeVariable(preview, data.previousFontSize);
+    } else {
+      // Fallback if pageStylerUtils is not available
+      const fontSize = data.previousFontSize.replace('font-size-', '');
+      let fontSizeValue = '12px'; // Default
+      
+      switch (fontSize) {
+        case 'small':
+          fontSizeValue = '10px';
+          break;
+        case 'medium':
+          fontSizeValue = '12px';
+          break;
+        case 'large':
+          fontSizeValue = '14px';
+          break;
+        case 'xlarge':
+          fontSizeValue = '16px';
+          break;
+      }
+      
+      // Set the CSS variable directly on the preview element
+      preview.style.setProperty('--fontSize', fontSizeValue);
+      
+      // Apply to all r-grid elements
+      const grids = preview.querySelectorAll('r-grid');
+      grids.forEach(grid => {
+        grid.style.setProperty('--fontSize', fontSizeValue);
+      });
+      
+      // Also set on document.documentElement to ensure proper inheritance
+      document.documentElement.style.setProperty('--fontSize', fontSizeValue);
     }
-    
-    // Set the CSS variable directly on the preview element
-    preview.style.setProperty('--fontSize', fontSizeValue);
-    
-    // Also update the document root to ensure consistent sizing
-    document.documentElement.style.setProperty('--fontSize', fontSizeValue);
   } else {
     // Reset to default font size
-    preview.style.removeProperty('--fontSize');
-    document.documentElement.style.removeProperty('--fontSize');
+    if (window.pageStylerUtils) {
+      window.pageStylerUtils.resetFontSizeVariable(preview);
+    } else {
+      // Fallback if pageStylerUtils is not available
+      preview.style.removeProperty('--fontSize');
+      
+      // Reset all r-grid elements
+      const grids = preview.querySelectorAll('r-grid');
+      grids.forEach(grid => {
+        grid.style.removeProperty('--fontSize');
+      });
+      
+      // Reset on document.documentElement
+      document.documentElement.style.removeProperty('--fontSize');
+    }
   }
   
   // Add previous heading font class if it existed
@@ -360,7 +365,7 @@ function undoUpdatePageStyle(data) {
   }
   
   // Update Google Fonts
-  updateGoogleFonts();
+  window.updateGoogleFonts();
 }
 
 // Generate a unique ID

@@ -1,4 +1,4 @@
-// elements.js - Handles element creation and management
+// elements.js
 
 document.addEventListener("DOMContentLoaded", () => {
   // Get references to the element–adding buttons.
@@ -22,33 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
     return true;
-  }
-
-  // Add event listeners to an element
-  function addElementEventListeners(el) {
-    // On click, select this element for styling
-    el.addEventListener("click", (e) => {
-      e.stopPropagation();
-      document.querySelectorAll(".editable-element").forEach(elem => {
-        elem.classList.remove("selected-element");
-      });
-      window.selectedElement = el;
-      el.classList.add("selected-element");
-      deleteElementBtn.disabled = false;
-      openStyleModalBtn.disabled = false;
-    });
-    
-    // Double-click for optional inline editing
-    if (el.tagName.toLowerCase() !== "img" && el.tagName.toLowerCase() !== "hr") {
-      el.addEventListener("dblclick", (e) => {
-        e.stopPropagation();
-        el.contentEditable = "true";
-        el.focus();
-      });
-      el.addEventListener("blur", () => {
-        el.contentEditable = "false";
-      });
-    }
   }
 
   // Add an editable element
@@ -87,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     el.classList.add("editable-element");
 
     // Add event listeners
-    addElementEventListeners(el);
+    window.domUtils.addElementEventListeners(el);
     
     // Remove the temporary padding from the cell when adding an element
     if (targetCell.style.padding === '10px') {
@@ -111,22 +84,27 @@ document.addEventListener("DOMContentLoaded", () => {
   addH1Btn.addEventListener("click", () => {
     addEditableElement("h1", "San Francisco Bubblegum");
   });
+  
   // Add H2
   addH2Btn.addEventListener("click", () => {
     addEditableElement("h2", "Don Draper's Ideas");
   });
+  
   // Add H3
   addH3Btn.addEventListener("click", () => {
     addEditableElement("h3", "VHS Nights & Blockbusters Movies");
   });
+  
   // Add Paragraph
   addPBtn.addEventListener("click", () => {
     addEditableElement("p", "Glittering confetti danced across the neon sky as a mysterious carnival barker shouted about the wonders of bubblegum-scented fireworks. Meanwhile, an old VHS tape lurked in the dusty corner of a retro arcade.");
   });
+  
   // Add Button
   addButtonBtn.addEventListener("click", () => {
     addEditableElement("button", "Click me");
   });
+  
   // Add Image
   addImgBtn.addEventListener("click", () => {
     if (!requireCell()) return;
@@ -158,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     // Add event listeners
-    addElementEventListeners(ul);
+    window.domUtils.addElementEventListeners(ul);
     
     // Remove the temporary padding from the cell when adding an element
     if (targetCell.style.padding === '10px') {
@@ -208,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     // Add event listeners
-    addElementEventListeners(ul);
+    window.domUtils.addElementEventListeners(ul);
     
     // Remove the temporary padding from the cell when adding an element
     if (targetCell.style.padding === '10px') {
@@ -243,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
     hr.classList.add("editable-element");
     
     // Add event listeners
-    addElementEventListeners(hr);
+    window.domUtils.addElementEventListeners(hr);
     
     // Remove the temporary padding from the cell when adding an element
     if (targetCell.style.padding === '10px') {
@@ -281,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pre.classList.add("editable-element");
     
     // Add event listeners
-    addElementEventListeners(pre);
+    window.domUtils.addElementEventListeners(pre);
     
     // Remove the temporary padding from the cell when adding an element
     if (targetCell.style.padding === '10px') {
@@ -299,20 +277,37 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
   
-  // Clear element selection when clicking elsewhere
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest(".editable-element") && 
-        !e.target.closest("#styleModal") && 
-        !e.target.closest("#open-style-modal")) {
-      document.querySelectorAll(".editable-element").forEach(elem => {
-        elem.classList.remove("selected-element");
+  // Delete the selected element
+  deleteElementBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (window.selectedElement) {
+      // Store element data for undo
+      const elementId = window.selectedElement.getAttribute('data-id');
+      const cellId = window.selectedElement.closest('r-cell').getAttribute('data-id');
+      const elementHtml = window.selectedElement.outerHTML;
+      
+      // Remove the element
+      window.selectedElement.remove();
+      
+      // Add to history
+      window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.DELETE_ELEMENT, {
+        elementId: elementId,
+        cellId: cellId,
+        elementHtml: elementHtml
       });
+      
       window.selectedElement = null;
       deleteElementBtn.disabled = true;
       openStyleModalBtn.disabled = true;
     }
   });
   
-  // Make functions available globally
-  window.addElementEventListeners = addElementEventListeners;
+  // Clear element selection when clicking elsewhere
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".editable-element") && 
+        !e.target.closest("#styleModal") && 
+        !e.target.closest("#open-style-modal")) {
+      window.domUtils.clearElementSelection();
+    }
+  });
 });

@@ -13,3 +13,16 @@
 .align-bottom {
   align-self: end;
 }
+
+/* text alignment utilities */
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}

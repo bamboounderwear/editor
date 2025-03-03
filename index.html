@@ -238,12 +238,20 @@
         <option value="padding5">padding5</option>
       </select>
       
-      <label for="cell-content-align-select">Cell Content Alignment:</label>
+      <label for="cell-content-align-select">Vertical Alignment:</label>
       <select id="cell-content-align-select">
         <option value="">Default</option>
         <option value="align-top">Top</option>
         <option value="align-middle">Middle</option>
         <option value="align-bottom">Bottom</option>
+      </select>
+      
+      <label for="cell-text-align-select">Text Alignment:</label>
+      <select id="cell-text-align-select">
+        <option value="">Default</option>
+        <option value="text-left">Left</option>
+        <option value="text-center">Center</option>
+        <option value="text-right">Right</option>
       </select>
       
       <label for="cell-bg-color-select">Background Color:</label>
@@ -439,11 +447,15 @@
 
   <!-- Load JavaScript files -->
   <script src="js/utils/history.js"></script>
-  <script src="js/grid.js"></script>
-  <script src="js/elements.js"></script>
+  <script src="js/utils/domUtils.js"></script>
+  <script src="js/utils/colorUtils.js"></script>
+  <script src="js/utils/styleUtils.js"></script>
+  <script src="js/utils/exportUtils.js"></script>
   <script src="js/styleControls.js"></script>
   <script src="js/cellStyles.js"></script>
   <script src="js/pageStyles.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/elements.js"></script>
   <script src="js/export.js"></script>
   <script src="js/app.js"></script>
 </body>

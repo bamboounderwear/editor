@@ -1,4 +1,4 @@
-// styleControls.js
+// elementStyler.js - Handles element styling functionality
 
 document.addEventListener("DOMContentLoaded", () => {
   // Get references to the style modal elements
@@ -88,14 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (hexValue.charAt(0) !== '#') {
       hexValue = '#' + hexValue;
     }
-    // Validate hex format
-    if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
-      customTextColorHex.value = hexValue;
-      customTextColorPicker.value = hexValue;
-    } else {
-      // Reset to color picker value if invalid
-      customTextColorHex.value = customTextColorPicker.value;
-    }
+    
+    // Use the utility function to validate hex color
+    customTextColorHex.value = window.colorUtils.validateHexColor(hexValue, customTextColorPicker.value);
+    customTextColorPicker.value = customTextColorHex.value;
   });
 
   // Fill the style modal with the selected element's current values
@@ -149,18 +145,11 @@ document.addEventListener("DOMContentLoaded", () => {
       textColorSelect.value = "custom";
       customTextColorContainer.style.display = "flex";
       const colorValue = el.style.color;
-      // Convert RGB to HEX if needed
-      if (colorValue.startsWith("rgb")) {
-        const rgb = colorValue.match(/\d+/g);
-        if (rgb && rgb.length === 3) {
-          const hex = "#" + rgb.map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
-          customTextColorPicker.value = hex;
-          customTextColorHex.value = hex;
-        }
-      } else {
-        customTextColorPicker.value = colorValue;
-        customTextColorHex.value = colorValue;
-      }
+      
+      // Convert RGB to HEX if needed using the utility function
+      const hexColor = window.colorUtils.rgbToHex(colorValue);
+      customTextColorPicker.value = hexColor;
+      customTextColorHex.value = hexColor;
     }
 
     // Check margin and padding
@@ -229,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
       newEl.classList.add("editable-element");
       
       // Add event listeners to the new element
-      window.addElementEventListeners(newEl);
+      window.domUtils.addElementEventListeners(newEl);
       
       // Replace the element
       el.parentNode.replaceChild(newEl, el);
@@ -247,48 +236,17 @@ document.addEventListener("DOMContentLoaded", () => {
         newStyle: newEl.style.cssText
       });
     } else {
-      // Update size classes (only for h1)
-      if (window.selectedElement.tagName.toLowerCase() === "h1") {
-        window.selectedElement.classList.remove("large", "xlarge", "xxlarge", "xxxlarge");
-        if (sizeClassVal) {
-          window.selectedElement.classList.add(sizeClassVal);
-        }
-      }
+      // Use utility functions to apply styles
+      window.styleUtils.applyHeadingSize(window.selectedElement, sizeClassVal);
+      window.styleUtils.applyTextAlignment(window.selectedElement, alignVal);
+      window.styleUtils.applyTextColor(window.selectedElement, textColorVal);
       
-      // Update alignment
-      window.selectedElement.classList.remove("left", "center", "right");
-      if (alignVal) {
-        window.selectedElement.classList.add(alignVal);
-      }
-      
-      // Update text color
-      window.selectedElement.classList.forEach(cls => {
-        if (cls.startsWith("text-")) {
-          window.selectedElement.classList.remove(cls);
-        }
-      });
-      
-      // Clear any inline color style
-      window.selectedElement.style.color = '';
-      
-      // Apply the selected color
+      // Apply custom color if selected
       if (textColorVal === "custom") {
-        // Apply custom color as inline style
-        const customColor = customTextColorHex.value;
-        window.selectedElement.style.color = customColor;
-      } else if (textColorVal) {
-        // Apply predefined color class
-        window.selectedElement.classList.add(textColorVal);
+        window.selectedElement.style.color = customTextColorHex.value;
       }
       
-      // Update margin and padding
-      window.selectedElement.classList.forEach(cls => {
-        if (cls.startsWith("margin") || cls.startsWith("padding")) {
-          window.selectedElement.classList.remove(cls);
-        }
-      });
-      if (marginVal) window.selectedElement.classList.add(marginVal);
-      if (paddingVal) window.selectedElement.classList.add(paddingVal);
+      window.styleUtils.applySpacing(window.selectedElement, marginVal, paddingVal);
       
       // Add to history
       window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.STYLE_ELEMENT, {

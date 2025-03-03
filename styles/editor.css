@@ -6,12 +6,17 @@
   border-right: 1px solid #ccc;
   box-sizing: border-box;
   overflow-y: auto;
+  background-color: #fff;
+  color: #000;
+  font-size: 14px !important;
+  z-index: 10;
 }
 
 .preview {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  z-index: 5;
 }
 
 h2, h3 {
@@ -77,6 +82,7 @@ r-grid.debug > *[class*="padding"] {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  font-size: 14px !important;
 }
 #styleModalContent, #cellStyleModalContent, #pageStyleModalContent {
   background: #fff;
@@ -85,6 +91,8 @@ r-grid.debug > *[class*="padding"] {
   width: 90%;
   max-width: 500px;
   position: relative;
+  font-size: 14px !important;
+  color: #000;
 }
 #styleModalClose, #cellStyleModalClose, #pageStyleModalClose {
   position: absolute;
@@ -440,7 +448,7 @@ button.editable-element {
   width: 100%;
   padding: 8px 12px;
   background-color: #000;
-  color: white;
+  color: white !important;
   border: none;
   cursor: pointer;
   text-align: left;
@@ -484,4 +492,35 @@ button.editable-element {
   .only-small-window {
     display: none;
   }
+}
+
+/* Override font size for preview area */
+.preview r-grid {
+  font-size: var(--fontSize, 12px);
+}
+
+/* Text alignment utilities */
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Vertical alignment utilities */
+.align-top {
+  align-self: start;
+}
+
+.align-middle {
+  align-self: center;
+}
+
+.align-bottom {
+  align-self: end;
 }

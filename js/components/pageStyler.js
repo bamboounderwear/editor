@@ -1,4 +1,4 @@
-// pageStyles.js - Handles page-wide styling
+// pageStyler.js - Handles page-wide styling functionality
 
 document.addEventListener("DOMContentLoaded", () => {
   // Get references to the page style modal elements
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const customPageTextColorHex = document.getElementById("custom-page-text-color-hex");
 
   // Store page styling settings
-  window.pageStyles = {
+  window.pageStyles = window.pageStyles || {
     backgroundColor: "",
     textColor: "",
     customBgColor: "",
@@ -124,14 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (hexValue.charAt(0) !== '#') {
       hexValue = '#' + hexValue;
     }
-    // Validate hex format
-    if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
-      customPageBgColorHex.value = hexValue;
-      customPageBgColorPicker.value = hexValue;
-    } else {
-      // Reset to color picker value if invalid
-      customPageBgColorHex.value = customPageBgColorPicker.value;
-    }
+    
+    // Use the utility function to validate hex color
+    customPageBgColorHex.value = window.colorUtils.validateHexColor(hexValue, customPageBgColorPicker.value);
+    customPageBgColorPicker.value = customPageBgColorHex.value;
   });
   
   customPageTextColorHex.addEventListener("blur", () => {
@@ -139,14 +135,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (hexValue.charAt(0) !== '#') {
       hexValue = '#' + hexValue;
     }
-    // Validate hex format
-    if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
-      customPageTextColorHex.value = hexValue;
-      customPageTextColorPicker.value = hexValue;
-    } else {
-      // Reset to color picker value if invalid
-      customPageTextColorHex.value = customPageTextColorPicker.value;
-    }
+    
+    // Use the utility function to validate hex color
+    customPageTextColorHex.value = window.colorUtils.validateHexColor(hexValue, customPageTextColorPicker.value);
+    customPageTextColorPicker.value = customPageTextColorHex.value;
   });
 
   // Fill the page style modal with current values
@@ -218,66 +210,11 @@ document.addEventListener("DOMContentLoaded", () => {
     window.pageStyles.bodyWeight = bodyWeightSelect.value;
     window.pageStyles.containerWidth = containerWidthSelect.value;
     
-    // Apply styles to the preview container
+    // Apply styles to the preview container only
     const preview = document.getElementById("preview");
     
-    // Remove previous background color classes and styles
-    preview.classList.forEach(cls => {
-      if (cls.startsWith("bg-")) {
-        preview.classList.remove(cls);
-      }
-    });
-    preview.style.backgroundColor = '';
-    
-    // Remove previous text color classes and styles
-    preview.classList.forEach(cls => {
-      if (cls.startsWith("text-")) {
-        preview.classList.remove(cls);
-      }
-    });
-    preview.style.color = '';
-    
-    // Remove previous font size classes
-    preview.classList.forEach(cls => {
-      if (cls.startsWith("font-size-")) {
-        preview.classList.remove(cls);
-      }
-    });
-    
-    // Remove previous heading font classes
-    preview.classList.forEach(cls => {
-      if (cls.startsWith("heading-font-")) {
-        preview.classList.remove(cls);
-      }
-    });
-    
-    // Remove previous heading weight classes
-    preview.classList.forEach(cls => {
-      if (cls.startsWith("heading-weight-")) {
-        preview.classList.remove(cls);
-      }
-    });
-    
-    // Remove previous body font classes
-    preview.classList.forEach(cls => {
-      if (cls.startsWith("body-font-")) {
-        preview.classList.remove(cls);
-      }
-    });
-    
-    // Remove previous body weight classes
-    preview.classList.forEach(cls => {
-      if (cls.startsWith("body-weight-")) {
-        preview.classList.remove(cls);
-      }
-    });
-    
-    // Remove previous container width classes
-    preview.classList.forEach(cls => {
-      if (cls.startsWith("container-")) {
-        preview.classList.remove(cls);
-      }
-    });
+    // Remove previous classes
+    removePageStyleClasses(preview);
     
     // Apply new background color
     if (window.pageStyles.backgroundColor === "custom") {
@@ -293,35 +230,21 @@ document.addEventListener("DOMContentLoaded", () => {
       preview.classList.add(window.pageStyles.textColor);
     }
     
-    // Add new font size class if selected
+    // Add new font size class if selected and apply the actual font size to the preview
     if (window.pageStyles.fontSize) {
       preview.classList.add(window.pageStyles.fontSize);
+      applyFontSizeVariable(preview, window.pageStyles.fontSize);
+    } else {
+      // Reset to default font size
+      resetFontSizeVariable(preview);
     }
     
-    // Add new heading font class if selected
-    if (window.pageStyles.headingFont) {
-      preview.classList.add(window.pageStyles.headingFont);
-    }
-    
-    // Add new heading weight class if selected
-    if (window.pageStyles.headingWeight) {
-      preview.classList.add(window.pageStyles.headingWeight);
-    }
-    
-    // Add new body font class if selected
-    if (window.pageStyles.bodyFont) {
-      preview.classList.add(window.pageStyles.bodyFont);
-    }
-    
-    // Add new body weight class if selected
-    if (window.pageStyles.bodyWeight) {
-      preview.classList.add(window.pageStyles.bodyWeight);
-    }
-    
-    // Add new container width class if selected
-    if (window.pageStyles.containerWidth) {
-      preview.classList.add(window.pageStyles.containerWidth);
-    }
+    // Add new font classes
+    if (window.pageStyles.headingFont) preview.classList.add(window.pageStyles.headingFont);
+    if (window.pageStyles.headingWeight) preview.classList.add(window.pageStyles.headingWeight);
+    if (window.pageStyles.bodyFont) preview.classList.add(window.pageStyles.bodyFont);
+    if (window.pageStyles.bodyWeight) preview.classList.add(window.pageStyles.bodyWeight);
+    if (window.pageStyles.containerWidth) preview.classList.add(window.pageStyles.containerWidth);
     
     // Add to history
     window.historyManager.addToHistory(window.historyManager.ACTION_TYPES.UPDATE_PAGE_STYLE, {
@@ -353,10 +276,104 @@ document.addEventListener("DOMContentLoaded", () => {
     updateGoogleFonts();
   });
   
+  // Helper function to remove all page style classes
+  function removePageStyleClasses(element) {
+    // Remove background color classes and styles
+    element.classList.forEach(cls => {
+      if (cls.startsWith("bg-")) {
+        element.classList.remove(cls);
+      }
+    });
+    element.style.backgroundColor = '';
+    
+    // Remove text color classes and styles
+    element.classList.forEach(cls => {
+      if (cls.startsWith("text-")) {
+        element.classList.remove(cls);
+      }
+    });
+    element.style.color = '';
+    
+    // Remove font size classes
+    element.classList.forEach(cls => {
+      if (cls.startsWith("font-size-")) {
+        element.classList.remove(cls);
+      }
+    });
+    
+    // Remove font family classes
+    element.classList.forEach(cls => {
+      if (cls.startsWith("heading-font-") || 
+          cls.startsWith("heading-weight-") || 
+          cls.startsWith("body-font-") || 
+          cls.startsWith("body-weight-") || 
+          cls.startsWith("container-")) {
+        element.classList.remove(cls);
+      }
+    });
+  }
+  
+  // Helper function to apply font size variable
+  function applyFontSizeVariable(element, fontSizeClass) {
+    const fontSize = fontSizeClass.replace('font-size-', '');
+    let fontSizeValue = '12px'; // Default
+    
+    switch (fontSize) {
+      case 'small':
+        fontSizeValue = '10px';
+        break;
+      case 'medium':
+        fontSizeValue = '12px';
+        break;
+      case 'large':
+        fontSizeValue = '14px';
+        break;
+      case 'xlarge':
+        fontSizeValue = '16px';
+        break;
+    }
+    
+    // Set the CSS variable directly on the preview element
+    element.style.setProperty('--fontSize', fontSizeValue);
+    
+    // Apply the font size to all r-grid elements within the preview
+    // This is necessary because r-grid elements inherit --fontSize from :root, not from their parent
+    const grids = element.querySelectorAll('r-grid');
+    grids.forEach(grid => {
+      grid.style.setProperty('--fontSize', fontSizeValue);
+    });
+    
+    // Also set on document.documentElement to ensure proper inheritance
+    // but ONLY for the preview area
+    document.documentElement.style.setProperty('--preview-fontSize', fontSizeValue);
+  }
+  
+  // Helper function to reset font size variable
+  function resetFontSizeVariable(element) {
+    // Reset on the preview element
+    element.style.removeProperty('--fontSize');
+    
+    // Reset on all r-grid elements
+    const grids = element.querySelectorAll('r-grid');
+    grids.forEach(grid => {
+      grid.style.removeProperty('--fontSize');
+    });
+    
+    // Reset on document.documentElement
+    document.documentElement.style.removeProperty('--preview-fontSize');
+  }
+  
   // Prevent clicks inside the modal from propagating
   pageStyleModal.addEventListener("click", (e) => {
     e.stopPropagation();
   });
+  
+  // Make helper functions available globally
+  window.pageStylerUtils = {
+    applyFontSizeVariable,
+    resetFontSizeVariable,
+    removePageStyleClasses
+  };
 });
 
 // Function to update Google Fonts based on selected fonts
